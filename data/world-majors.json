@@ -1,0 +1,114 @@
+[
+ {
+  "city": "伦敦",
+  "race": "London Marathon",
+  "m": {
+   "t": "1:59:30",
+   "n": "Sabastian Sawe",
+   "c": "肯尼亚",
+   "y": 2026
+  },
+  "w": {
+   "t": "2:15:25",
+   "n": "Paula Radcliffe",
+   "c": "英国",
+   "y": 2003
+  }
+ },
+ {
+  "city": "芝加哥",
+  "race": "Chicago Marathon",
+  "m": {
+   "t": "2:00:35",
+   "n": "Kelvin Kiptum",
+   "c": "肯尼亚",
+   "y": 2023
+  },
+  "w": {
+   "t": "2:09:56",
+   "n": "Ruth Chepngetich",
+   "c": "肯尼亚",
+   "y": 2024
+  }
+ },
+ {
+  "city": "柏林",
+  "race": "Berlin Marathon",
+  "m": {
+   "t": "2:01:09",
+   "n": "Eliud Kipchoge",
+   "c": "肯尼亚",
+   "y": 2022
+  },
+  "w": {
+   "t": "2:11:53",
+   "n": "Tigist Assefa",
+   "c": "埃塞俄比亚",
+   "y": 2023
+  }
+ },
+ {
+  "city": "波士顿",
+  "race": "Boston Marathon",
+  "m": {
+   "t": "2:01:52",
+   "n": "John Korir",
+   "c": "肯尼亚",
+   "y": 2026
+  },
+  "w": {
+   "t": "2:17:22",
+   "n": "Sharon Lokedi",
+   "c": "肯尼亚",
+   "y": 2025
+  }
+ },
+ {
+  "city": "东京",
+  "race": "Tokyo Marathon",
+  "m": {
+   "t": "2:02:16",
+   "n": "Benson Kipruto",
+   "c": "肯尼亚",
+   "y": 2024
+  },
+  "w": {
+   "t": "2:15:55",
+   "n": "Sutume Asefa Kebede",
+   "c": "埃塞俄比亚",
+   "y": 2024
+  }
+ },
+ {
+  "city": "纽约",
+  "race": "New York City Marathon",
+  "m": {
+   "t": "2:04:58",
+   "n": "Tamirat Tola",
+   "c": "埃塞俄比亚",
+   "y": 2023
+  },
+  "w": {
+   "t": "2:19:51",
+   "n": "Hellen Obiri",
+   "c": "肯尼亚",
+   "y": 2025
+  }
+ },
+ {
+  "city": "悉尼",
+  "race": "Sydney Marathon",
+  "m": {
+   "t": "2:06:06",
+   "n": "Hailemaryam Kiros",
+   "c": "埃塞俄比亚",
+   "y": 2025
+  },
+  "w": {
+   "t": "2:18:22",
+   "n": "Sifan Hassan",
+   "c": "荷兰",
+   "y": 2025
+  }
+ }
+]

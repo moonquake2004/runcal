@@ -1,0 +1,760 @@
+{
+ "重庆马拉松": {
+  "men": {
+   "name": "ADISU TESFAHUN TAFERE",
+   "nat": "埃塞俄比亚",
+   "time": "2:08:28"
+  },
+  "women": {
+   "name": "KEBEBUSH YISMAZEW OLDEMARIAM",
+   "nat": "埃塞俄比亚",
+   "time": "2:24:48"
+  },
+  "cnMen": {
+   "name": "丰配友",
+   "time": "2:10:22",
+   "note": "破中国籍赛会纪录"
+  },
+  "cnWomen": {
+   "name": "朱卿",
+   "time": "2:28:53"
+  },
+  "record": true,
+  "src": "央视网 / 新华网 / 人民网 2026-01-19"
+ },
+ "厦门马拉松": {
+  "men": {
+   "time": "2:09:18"
+  },
+  "women": {
+   "time": "2:22:45"
+  },
+  "cnMen": {
+   "name": "杨绍辉",
+   "time": "2:11:14"
+  },
+  "cnWomen": {
+   "name": "李美珍",
+   "time": "2:27:24"
+  },
+  "record": false,
+  "src": "公开报道整理"
+ },
+ "无锡马拉松": {
+  "men": {
+   "name": "Kemal HUSEN",
+   "nat": "埃塞俄比亚",
+   "time": "2:07:07"
+  },
+  "women": {
+   "name": "Amid Fozya JEMAL",
+   "nat": "埃塞俄比亚",
+   "time": "2:24:14"
+  },
+  "cnMen": {
+   "name": "毛金虎",
+   "time": "2:07:36",
+   "note": "中国运动员首马纪录"
+  },
+  "cnWomen": {
+   "name": "李美珍",
+   "time": "2:25:06"
+  },
+  "record": false,
+  "src": "无锡日报 / 新华网 2026-03-23"
+ },
+ "武汉马拉松": {
+  "men": {
+   "name": "JOHN MBURU MUIRURI",
+   "nat": "肯尼亚",
+   "time": "2:10:16"
+  },
+  "women": {
+   "name": "VERONICAH NJERI MAINA",
+   "nat": "肯尼亚",
+   "time": "2:24:14",
+   "note": "破女子赛会纪录"
+  },
+  "cnMen": {
+   "name": "何杰",
+   "time": "2:10:56"
+  },
+  "cnWomen": {
+   "name": "朱卿",
+   "time": "2:28:45",
+   "note": "破中国籍女子赛会纪录"
+  },
+  "record": true,
+  "src": "央视网 / 国际在线 2026-03-23"
+ },
+ "兰州马拉松": {
+  "men": {
+   "name": "GERBA BEYATA DIBABA",
+   "nat": "埃塞俄比亚",
+   "time": "2:11:52"
+  },
+  "women": {
+   "name": "HAVEN HAILU DESSE",
+   "nat": "埃塞俄比亚",
+   "time": "2:29:54"
+  },
+  "cnMen": {
+   "name": "丰配友",
+   "time": "2:14:09",
+   "note": "破中国籍赛会纪录"
+  },
+  "cnWomen": {
+   "name": "次仁措姆",
+   "time": "2:29:59",
+   "note": "破赛会纪录（尘封15年）"
+  },
+  "record": true,
+  "src": "甘肃省人民政府 / 科技日报 2026-05-24"
+ },
+ "香港马拉松": {
+  "men": {
+   "name": "Bizuneh Melaku BELACHEW",
+   "nat": "埃塞俄比亚",
+   "time": "2:09:39"
+  },
+  "women": {
+   "name": "Shitaye Eshete HABTEGEBREL",
+   "nat": "巴林",
+   "time": "2:27:03"
+  },
+  "cnMen": {
+   "name": "黄尹隽",
+   "time": "2:26:47",
+   "note": "中国香港本地男子冠军"
+  },
+  "cnWomen": {
+   "name": "罗映潮",
+   "time": "2:41:29",
+   "note": "中国香港本地女子冠军"
+  },
+  "record": false,
+  "src": "香港马拉松官网 / 新华社 2026-01-18"
+ },
+ "北京半程马拉松": {
+  "men": {
+   "name": "王文杰",
+   "time": "1:01:15",
+   "note": "半程 · 破全国纪录"
+  },
+  "women": {
+   "name": "许双双",
+   "time": "1:09:54",
+   "note": "半程"
+  },
+  "record": true,
+  "src": "人民日报 / 中国军网 2026-04-12"
+ },
+ "青岛马拉松": {
+  "men": {
+   "name": "Biwott Abraham KIPKEMEI",
+   "nat": "埃塞俄比亚",
+   "time": "2:13:50"
+  },
+  "women": {
+   "name": "Siferew Nitsuh NEGESSE",
+   "nat": "埃塞俄比亚",
+   "time": "2:33:53"
+  },
+  "cnMen": {
+   "name": "王佳浩",
+   "time": "2:15:31",
+   "note": "国内三连冠"
+  },
+  "cnWomen": {
+   "name": "姚玉舟",
+   "time": "2:41:17"
+  },
+  "record": false,
+  "src": "青岛日报 / 青岛政务网 2026-04-19"
+ },
+ "大连马拉松": {
+  "men": {
+   "name": "Francis Kipkorir Langat",
+   "nat": "肯尼亚",
+   "time": "2:09:29"
+  },
+  "women": {
+   "name": "朱卿",
+   "nat": "中国",
+   "time": "2:29:02"
+  },
+  "cnMen": {
+   "name": "张晓鸿",
+   "time": "2:11:17"
+  },
+  "record": true,
+  "src": "科技日报 2026-04-26"
+ },
+ "扬州半程马拉松": {
+  "men": {
+   "name": "Alex Nzioka MATATA",
+   "nat": "肯尼亚",
+   "time": "0:59:11"
+  },
+  "women": {
+   "name": "Miriam CHEBET",
+   "nat": "肯尼亚",
+   "time": "1:06:27"
+  },
+  "cnMen": {
+   "name": "蒋发坤",
+   "time": "1:03:09"
+  },
+  "cnWomen": {
+   "name": "次仁措姆",
+   "time": "1:10:10"
+  },
+  "record": true,
+  "src": "扬州市政府 2026-03-29"
+ },
+ "上海半程马拉松": {
+  "men": {
+   "name": "Solomon Kirwa YEGO",
+   "nat": "肯尼亚",
+   "time": "1:00:57"
+  },
+  "women": {
+   "name": "Asmarech ANLEY",
+   "nat": "埃塞俄比亚",
+   "time": "1:07:01"
+  },
+  "cnMen": {
+   "name": "马瑞",
+   "time": "1:02:49"
+  },
+  "cnWomen": {
+   "name": "许双双",
+   "time": "1:09:34"
+  },
+  "record": false,
+  "src": "上海市体育局 2026-03-16"
+ },
+ "多彩贵州马拉松超级联赛（第三站）暨贵阳马拉松": {
+  "men": {
+   "name": "ABDULWOKIL",
+   "nat": "埃塞俄比亚",
+   "time": "2:15:13"
+  },
+  "women": {
+   "name": "FIKRTE",
+   "nat": "埃塞俄比亚",
+   "time": "2:29:04"
+  },
+  "cnMen": {
+   "name": "洪跃",
+   "time": "2:19:21"
+  },
+  "cnWomen": {
+   "name": "潘素芳",
+   "time": "2:45:34"
+  },
+  "record": true,
+  "src": "贵阳市体育局 2026-06-15"
+ },
+ "曲靖罗平花海马拉松": {
+  "men": {
+   "name": "高成亮",
+   "nat": "中国",
+   "time": "2:17:58"
+  },
+  "women": {
+   "name": "张景霞",
+   "nat": "中国",
+   "time": "2:49:50"
+  },
+  "record": false,
+  "src": "人民网 / 央广网 2026-03-16"
+ },
+ "昆明半程马拉松": {
+  "men": {
+   "name": "高鹏",
+   "nat": "中国",
+   "time": "1:05:31"
+  },
+  "women": {
+   "name": "马秀针",
+   "nat": "中国",
+   "time": "1:15:30"
+  },
+  "record": false,
+  "src": "云南日报 / 昆明信息港 2026-06-21"
+ },
+ "眉山仁寿半程马拉松": {
+  "men": {
+   "name": "Alex Nzioka MATATA",
+   "nat": "肯尼亚",
+   "time": "0:59:51"
+  },
+  "women": {
+   "name": "Ruti Aga SORA",
+   "nat": "埃塞俄比亚",
+   "time": "1:08:04"
+  },
+  "cnMen": {
+   "name": "贾俄仁加",
+   "time": "1:02:07"
+  },
+  "cnWomen": {
+   "name": "梁田田",
+   "time": "1:08:33"
+  },
+  "record": false,
+  "src": "四川日报 / 红星新闻 2026-03-15"
+ },
+ "新北万金石马拉松": {
+  "men": {
+   "name": "Enock ONCHARI",
+   "nat": "肯尼亚",
+   "time": "2:12:46"
+  },
+  "women": {
+   "name": "Catherine CHEROTICH",
+   "nat": "肯尼亚",
+   "time": "2:32:32"
+  },
+  "cnMen": {
+   "name": "周庭印",
+   "time": "2:28:43",
+   "note": "中国台北国内男子冠军"
+  },
+  "cnWomen": {
+   "name": "雷理莎",
+   "time": "2:53:01",
+   "note": "中国台北国内女子冠军"
+  },
+  "record": false,
+  "src": "新北市政府体育局 / 知新闻 2026-03-15"
+ },
+ "南京仙林半程马拉松": {
+  "men": {
+   "name": "MOLALIGN FANTAHUN BEKELE",
+   "nat": "埃塞俄比亚",
+   "time": "1:01:55"
+  },
+  "women": {
+   "name": "MEAZA ASEFA KASEGN",
+   "nat": "埃塞俄比亚",
+   "time": "1:11:19"
+  },
+  "cnMen": {
+   "name": "马瑞",
+   "time": "1:03:39"
+  },
+  "cnWomen": {
+   "name": "吴冰",
+   "time": "1:12:44"
+  },
+  "record": false,
+  "src": "龙虎网 / 现代快报 2026-04-12"
+ },
+ "密云马拉松": {
+  "men": {
+   "name": "Imar Tadelaye DEMISSIE",
+   "nat": "埃塞俄比亚",
+   "time": "2:10:36",
+   "note": "破赛会纪录（原2:15:27）"
+  },
+  "women": {
+   "name": "Desta Netsanet TAFERE",
+   "nat": "埃塞俄比亚",
+   "time": "2:30:56",
+   "note": "破赛会纪录（原2:32:30）"
+  },
+  "cnMen": {
+   "name": "王佳浩",
+   "time": "2:14:37"
+  },
+  "cnWomen": {
+   "name": "徐冰洁",
+   "time": "2:33:20"
+  },
+  "record": true,
+  "src": "中国新闻网 / 新华网北京 2026-04-26；半程冠军高勇1:08:43、刘敏1:15:59（均破中国籍赛会纪录）"
+ },
+ "吉林市马拉松": {
+  "men": {
+   "name": "KIPRUGUT DOUGLASS KIMELI",
+   "nat": "肯尼亚",
+   "time": "2:13:37"
+  },
+  "women": {
+   "name": "GEDEFA YALGANESH ESKAMECH",
+   "nat": "埃塞俄比亚",
+   "time": "2:33:27"
+  },
+  "cnMen": {
+   "name": "解云策",
+   "time": "2:16:34"
+  },
+  "cnWomen": {
+   "name": "路颖",
+   "time": "2:34:05",
+   "note": "同时获女子全程亚军"
+  },
+  "record": false,
+  "src": "吉林市马拉松官网 / 中国吉林网 2026-05-31"
+ },
+ "多彩贵州半程马拉松超级联赛（第一站）暨镇宁黄果树半程马拉松": {
+  "men": {
+   "name": "Francis Kipkorir LANGAT",
+   "nat": "肯尼亚",
+   "time": "1:01:08"
+  },
+  "women": {
+   "name": "Winnie Jepkosgei KIMUTAI",
+   "nat": "肯尼亚",
+   "time": "1:10:33"
+  },
+  "cnMen": {
+   "name": "丰配友",
+   "time": "1:04:31"
+  },
+  "cnWomen": {
+   "name": "王敏",
+   "time": "1:15:17"
+  },
+  "record": false,
+  "src": "贵州省体育局 / 新华网贵州 2026-06-28（2026年为联赛第二站、第21届）"
+ },
+ "长春马拉松": {
+  "men": {
+   "name": "狄鋆",
+   "nat": "中国",
+   "time": "2:21:59"
+  },
+  "women": {
+   "name": "通拉嘎",
+   "nat": "中国",
+   "time": "2:36:39"
+  },
+  "cnMen": {
+   "name": "狄鋆",
+   "nat": "中国",
+   "time": "2:21:59"
+  },
+  "cnWomen": {
+   "name": "通拉嘎",
+   "nat": "中国",
+   "time": "2:36:39"
+  },
+  "record": false,
+  "src": "央广网、中新网 2026-05-17"
+ },
+ "成都世遗马拉松": {
+  "men": {
+   "name": "祁连生",
+   "nat": "中国",
+   "time": "2:17:55"
+  },
+  "women": {
+   "name": "杨新云",
+   "nat": "中国",
+   "time": "2:35:59"
+  },
+  "cnMen": {
+   "name": "祁连生",
+   "nat": "中国",
+   "time": "2:17:55"
+  },
+  "cnWomen": {
+   "name": "杨新云",
+   "nat": "中国",
+   "time": "2:35:59"
+  },
+  "record": false,
+  "src": "国家体育总局、央视网 2026-03-22"
+ },
+ "银川马拉松": {
+  "men": {
+   "name": "王乐",
+   "nat": "中国",
+   "time": "2:22:02"
+  },
+  "women": {
+   "name": "周昊",
+   "nat": "中国",
+   "time": "2:41:36"
+  },
+  "cnMen": {
+   "name": "王乐",
+   "nat": "中国",
+   "time": "2:22:02"
+  },
+  "cnWomen": {
+   "name": "周昊",
+   "nat": "中国",
+   "time": "2:41:36"
+  },
+  "record": false,
+  "src": "央广网、银川市政府 2026-05-17"
+ },
+ "石家庄马拉松": {
+  "men": {
+   "name": "武明瑶",
+   "nat": "中国",
+   "time": "2:11:49"
+  },
+  "women": {
+   "name": "潘元晨",
+   "nat": "中国",
+   "time": "2:32:12"
+  },
+  "cnMen": {
+   "name": "武明瑶",
+   "nat": "中国",
+   "time": "2:11:49"
+  },
+  "cnWomen": {
+   "name": "潘元晨",
+   "nat": "中国",
+   "time": "2:32:12"
+  },
+  "record": true,
+  "src": "人民网、新华社 2026-03-29（男女均破赛会纪录）"
+ },
+ "宁波马拉松": {
+  "men": {
+   "name": "郭中瑞",
+   "nat": "中国",
+   "time": "2:13:20"
+  },
+  "women": {
+   "name": "次仁措姆",
+   "nat": "中国",
+   "time": "2:28:08"
+  },
+  "cnMen": {
+   "name": "郭中瑞",
+   "nat": "中国",
+   "time": "2:13:20"
+  },
+  "cnWomen": {
+   "name": "次仁措姆",
+   "nat": "中国",
+   "time": "2:28:08"
+  },
+  "record": true,
+  "src": "宁波市体育局、国家体育总局 2026-03-15（男女均破赛会纪录）"
+ },
+ "南京北岸马拉松": {
+  "men": {
+   "name": "王佳浩",
+   "nat": "中国",
+   "time": "2:11:32"
+  },
+  "women": {
+   "name": "黄菲",
+   "nat": "中国",
+   "time": "2:30:26"
+  },
+  "cnMen": {
+   "name": "王佳浩",
+   "nat": "中国",
+   "time": "2:11:32"
+  },
+  "cnWomen": {
+   "name": "黄菲",
+   "nat": "中国",
+   "time": "2:30:26"
+  },
+  "record": true,
+  "src": "国家体育总局、江南时报 2026-03-08（男女均破赛会纪录）"
+ },
+ "兰州新区马拉松": {
+  "men": {
+   "name": "王涛",
+   "nat": "中国",
+   "time": "2:22:26"
+  },
+  "women": {
+   "name": "史慧丽",
+   "nat": "中国",
+   "time": "3:02:51"
+  },
+  "cnMen": {
+   "name": "王涛",
+   "nat": "中国",
+   "time": "2:22:26"
+  },
+  "cnWomen": {
+   "name": "史慧丽",
+   "nat": "中国",
+   "time": "3:02:51"
+  },
+  "record": false,
+  "src": "中新网甘肃、新华网甘肃 2026-08-30"
+ },
+ "沈阳·康平卧龙湖马拉松": {
+  "men": {
+   "name": "王军",
+   "nat": "中国",
+   "time": "1:08:09"
+  },
+  "women": {
+   "name": "王宇妍",
+   "nat": "中国",
+   "time": "1:16:39"
+  },
+  "cnMen": {
+   "name": "王军",
+   "nat": "中国",
+   "time": "1:08:09"
+  },
+  "cnWomen": {
+   "name": "王宇妍",
+   "nat": "中国",
+   "time": "1:16:39"
+  },
+  "record": false,
+  "src": "网易辽宁、央广网 2026-08-23（半程马拉松）"
+ },
+ "北京城市副中心马拉松": {
+  "men": {
+   "name": "田杰",
+   "nat": "中国",
+   "time": "2:22:00"
+  },
+  "women": {
+   "name": "敖苹平",
+   "nat": "中国",
+   "time": "2:45:43"
+  },
+  "cnMen": {
+   "name": "田杰",
+   "nat": "中国",
+   "time": "2:22:00"
+  },
+  "cnWomen": {
+   "name": "敖苹平",
+   "nat": "中国",
+   "time": "2:45:43"
+  },
+  "record": false,
+  "src": "北京文明网、百度百科 2026-04-19"
+ },
+ "宁海马拉松": {
+  "men": {
+   "name": "张立钢",
+   "nat": "中国",
+   "time": "2:19:29"
+  },
+  "women": {
+   "name": "郭翠玲",
+   "nat": "中国",
+   "time": "2:44:05"
+  },
+  "cnMen": {
+   "name": "张立钢",
+   "nat": "中国",
+   "time": "2:19:29"
+  },
+  "cnWomen": {
+   "name": "郭翠玲",
+   "nat": "中国",
+   "time": "2:44:05"
+  },
+  "record": false,
+  "src": "央广网、宁波晚报 2026-03-08"
+ },
+ "奉化马拉松": {
+  "men": {
+   "name": "吴正林",
+   "nat": "中国",
+   "time": "2:18:53"
+  },
+  "women": {
+   "name": "伍玲",
+   "nat": "中国",
+   "time": "2:42:43"
+  },
+  "cnMen": {
+   "name": "吴正林",
+   "nat": "中国",
+   "time": "2:18:53"
+  },
+  "cnWomen": {
+   "name": "伍玲",
+   "nat": "中国",
+   "time": "2:42:43"
+  },
+  "record": true,
+  "src": "宁波日报、宁波市体育局 2026-03-15（男女均破赛会纪录）"
+ },
+ "重庆万州环湖马拉松": {
+  "men": {
+   "name": "盛雪李",
+   "nat": "中国",
+   "time": "2:23:53"
+  },
+  "women": {
+   "name": "文琴",
+   "nat": "中国",
+   "time": "2:50:28"
+  },
+  "cnMen": {
+   "name": "盛雪李",
+   "nat": "中国",
+   "time": "2:23:53"
+  },
+  "cnWomen": {
+   "name": "文琴",
+   "nat": "中国",
+   "time": "2:50:28"
+  },
+  "record": false,
+  "src": "万州手机台、百度百科 2026-03-15"
+ },
+ "重庆铜梁龙马拉松": {
+  "men": {
+   "name": "黄仁伟",
+   "nat": "中国",
+   "time": "2:20:58"
+  },
+  "women": {
+   "name": "舒梦",
+   "nat": "中国",
+   "time": "2:47:12"
+  },
+  "cnMen": {
+   "name": "黄仁伟",
+   "nat": "中国",
+   "time": "2:20:58"
+  },
+  "cnWomen": {
+   "name": "舒梦",
+   "nat": "中国",
+   "time": "2:47:12"
+  },
+  "record": false,
+  "src": "中新网、重庆市政府网 2026-03-15"
+ },
+ "重庆垫江牡丹马拉松": {
+  "men": {
+   "name": "黄仁伟",
+   "nat": "中国",
+   "time": "2:21:33"
+  },
+  "women": {
+   "name": "张景霞",
+   "nat": "中国",
+   "time": "2:49:45"
+  },
+  "cnMen": {
+   "name": "黄仁伟",
+   "nat": "中国",
+   "time": "2:21:33"
+  },
+  "cnWomen": {
+   "name": "张景霞",
+   "nat": "中国",
+   "time": "2:49:45"
+  },
+  "record": false,
+  "src": "央视网、人民网 2026-03-29"
+ }
+}

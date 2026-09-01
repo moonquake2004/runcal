@@ -1,0 +1,13 @@
+# 运行时 / 隐私
+data/visits.json
+*.log
+
+# 本地工具与备份（非源码）
+.workbuddy/
+
+# 依赖（当前无 npm 依赖，纯静态+node内置模块）
+node_modules/
+
+# 系统
+.DS_Store
+Thumbs.db

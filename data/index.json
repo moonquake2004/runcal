@@ -1,0 +1,54 @@
+{
+ "snapshot": "2026-09-01",
+ "generated": "2026-09-01T08:00:14.821Z",
+ "files": [
+  {
+   "f": "races-2026",
+   "k": "RACES_2026"
+  },
+  {
+   "f": "races-2027",
+   "k": "RACES_2027"
+  },
+  {
+   "f": "course-images",
+   "k": "COURSE_IMAGES"
+  },
+  {
+   "f": "race-results",
+   "k": "RACE_RESULTS"
+  },
+  {
+   "f": "course-records",
+   "k": "COURSE_RECORDS"
+  },
+  {
+   "f": "cn-best",
+   "k": "CN_BEST"
+  },
+  {
+   "f": "world-records",
+   "k": "WORLD_RECORDS"
+  },
+  {
+   "f": "world-majors",
+   "k": "WORLD_MAJORS"
+  },
+  {
+   "f": "race-urls",
+   "k": "RACE_URLS"
+  },
+  {
+   "f": "race-reg-as-of",
+   "k": "RACE_REG_AS_OF"
+  },
+  {
+   "f": "race-reg",
+   "k": "RACE_REG"
+  },
+  {
+   "f": "race-diff",
+   "k": "RACE_DIFF"
+  }
+ ]
+}

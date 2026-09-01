@@ -1,0 +1,10 @@
+{
+  "name": "runcal",
+  "version": "1.0.0",
+  "private": true,
+  "description": "跑历 RunCal · 中国马拉松赛季日历（含访问量统计后端）",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

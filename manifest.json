@@ -1,0 +1,17 @@
+{
+  "name": "跑历 RunCal — 中国马拉松赛季日历",
+  "short_name": "跑历",
+  "description": "34 个省级行政区、473 场路跑赛事的赛季日历：全赛历、报名日历、数据洞察与赛事检索",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0A0C11",
+  "theme_color": "#E23A20",
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
