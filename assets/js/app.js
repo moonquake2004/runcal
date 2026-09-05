@@ -764,7 +764,7 @@
         : `<span class="rec-col rec-cn rec-none"><b>${label}</b> 暂无公开成绩</span>`;
       row.innerHTML = `
         <span class="rank-no">${String(i + 1).padStart(2, '0')}</span>
-        <span class="rank-main"><b>${esc(c.city)}</b><span>${esc(m.race)} · 全程</span></span>
+        <span class="rank-main"><b>${esc(c.city)}</b><button type="button" class="city-filter-btn" data-prov="${esc(c.prov || '')}" data-city="${esc(c.city)}" aria-label="在赛事库中筛选${esc(c.city)}的赛事">筛选该市赛事</button><span>${esc(m.race)} · 全程</span></span>
         <span class="rank-recs">
           <span class="rec-col rec-m"><b>M</b> ${m.t}<em>${esc(m.name)} · ${m.year}</em></span>
           ${w ? `<span class="rec-col rec-w"><b>W</b> ${w.t}<em>${esc(w.name)} · ${w.year}</em></span>` : `<span class="rec-col rec-w rec-none"><b>W</b> 暂无公开纪录</span>`}
@@ -775,6 +775,14 @@
       row.addEventListener('click', () => {
         const r = ALL.find(x => x.name === m.race);
         if (r) openModal(r);
+      });
+      // 与「城市赛道榜」行为统一：一键筛选该市赛事（弹窗仍由整行点击打开）
+      row.querySelector('.city-filter-btn').addEventListener('click', e => {
+        e.stopPropagation();
+        const btn = e.currentTarget;
+        const rep = ALL.find(x => x.name === m.race);
+        const prov = btn.dataset.prov || (rep && rep.province) || '';
+        if (prov) applyCityFilter(prov, btn.dataset.city);
       });
       host.appendChild(row);
     });
@@ -1578,6 +1586,26 @@
   }
 
   /* ---------- 12c. 城市赛道榜（P2-6 替代可视化：省份热力矩阵 + 城市榜，零合规风险，不画地图轮廓） ---------- */
+  /* 城市筛选统一入口：城市赛道榜 / 全国城市成绩榜 共用。
+     写入 F.province/F.city → 重渲赛事库 → 同步清除按钮与两处榜单高亮 → 滚动到赛事库 */
+  function applyCityFilter(prov, city) {
+    F.province.clear(); F.city.clear();
+    if (city) F.city.add(prov + '/' + city); else F.province.add(prov);
+    renderRaces();
+    const cb = $('#cityClear');
+    if (cb) {
+      const on = F.province.size || F.city.size;
+      cb.hidden = !on;
+      if (on) {
+        const labs = F.province.size ? [...F.province] : [...F.city].map(k => k.split('/')[1]);
+        cb.textContent = '清除筛选（' + labs.join('、') + '）';
+      }
+    }
+    if (typeof window.__cityBoardRefresh === 'function') window.__cityBoardRefresh();
+    const rs = document.getElementById('races');
+    if (rs) rs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   function renderCityBoard() {
     const hostM = $('#provMatrix'), hostR = $('#cityRank');
     if (!hostM || !hostR) return;
@@ -1720,6 +1748,8 @@
 
     syncFilterUI();
     drawMatrix(); drawRank();
+    // 供外部（全国城市成绩榜的「筛选该市赛事」）刷新本榜高亮与清除按钮
+    window.__cityBoardRefresh = () => { syncFilterUI(); drawMatrix(); drawRank(); };
   }
 
   /* ---------- 13. 初始渲染 ---------- */
@@ -1738,6 +1768,7 @@
           '赛道难度扩充至 65 场：头部全程马拉松 72 场全覆盖（新增盐城 / 淮安 / 杨凌农科城 / 新余仙女湖 / 桂林，含关门时间表与来源）',
           '报名窗口扩充至 17 场：新增桂林（报名中至 9/29）、泗洪、武汉光谷、常州西太湖、杭州钱塘女子、合肥、杭马等核实窗口；多场规模按官方公告修正（杭马 3.6 万、合肥 3 万、杨凌 2 万等）',
           '报名日历卡片新增「名额规则」标签（超额抽签 / 先报先得 / 抽签+候补），弹窗 KEY DATA 同步展示',
+          '「全国城市成绩榜」城市行新增「筛选该市赛事」按钮，与数据洞察「城市赛道榜」行为统一（整行点击仍打开代表赛事弹窗）',
           '赛事详情弹窗官方报名入口从 9 个扩至 20 个（全部为已核实的赛事官网）',
           '赛事库搜索支持自然语言：「本周六 全马 A1」「下周 金标 报名中」等口语组合自动解析为筛选条件',
           '我的赛程新增报名截止 D-Day 预警（7 天内琥珀 / 3 天内红色加急），首屏新增个人提醒条',
