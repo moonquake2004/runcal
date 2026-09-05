@@ -12,10 +12,11 @@
   const DIST_LABEL = { F: '全程马拉松', H: '半程马拉松', T: '10公里', R: '欢乐跑' };
   const MONTH_EN = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
   const STATUS_TEXT = { open: '报名中', soon: '待开启', closed: '已截止', done: '已结束', tba: '待官宣' };
+  const REG_MODE = { lottery: '超额抽签', fcfs: '先报先得 · 额满即止', lottery_waitlist: '抽签 + 候补' };
 
   const TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
   const TODAY_STR = fmtDate(TODAY);
-  const DATA_SNAPSHOT = '2026-09-01';  // 数据最后更新日期（非访问当天，避免页脚/概览误显为今日）
+  const DATA_SNAPSHOT = '2026-09-05';  // 数据最后更新日期（非访问当天，避免页脚/概览误显为今日）
 
   function fmtDate(d) {
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -247,6 +248,8 @@
     dist: 'all',
     status: 'all',
     regwin: 'all',
+    dFrom: null,
+    dTo: null,
     q: '',
     sort: 'date',
     view: 'card'
@@ -300,10 +303,96 @@
   });
 
   let searchTimer;
+  // 自然语言搜索（P2-8）：把「本周六 / 全马 / A1 / 金标 / 报名中」等口语词解析到对应筛选器，
+  // 其余文字仍作为关键词。日期窗口是新增的独立筛选（F.dFrom/dTo），其余复用现有 chip 联动。
+  const NL_WD = ['日', '一', '二', '三', '四', '五', '六'];
+  function nlMonday(d) { const x = new Date(d); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; }
+  function nlFmt(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  function nlMD(d) { return (d.getMonth() + 1) + '月' + d.getDate() + '日'; }
+  function applyNaturalSearch(raw) {
+    let v = raw.trim();
+    const now = new Date(); now.setHours(0, 0, 0, 0);
+    const hits = [];
+    const clickChip = (sel, val) => {
+      const chip = document.querySelector(sel + ' .chip[data-v="' + val + '"]');
+      if (chip && !chip.classList.contains('on')) chip.click();
+    };
+    const strip = re => { v = v.replace(re, ''); };
+    // ---- 状态 ----
+    if (/报名中|能报|可报|开放报名/.test(v)) { clickChip('#fStatus', 'open'); strip(/报名中|能报|可报|开放报名/g); hits.push('报名中'); }
+    if (/待开启|即将开抢|即将开启/.test(v)) { clickChip('#fStatus', 'soon'); strip(/待开启|即将开抢|即将开启/g); hits.push('待开启'); }
+    // ---- 项目 ----
+    if (/全程马拉松|全马|全程/.test(v)) { clickChip('#fDist', 'F'); strip(/全程马拉松|全马|全程/g); hits.push('全程'); }
+    else if (/半程马拉松|半马|半程/.test(v)) { clickChip('#fDist', 'H'); strip(/半程马拉松|半马|半程/g); hits.push('半程'); }
+    else if (/10 ?公里|10K|十公里/i.test(v)) { clickChip('#fDist', 'T'); strip(/10 ?公里|10K|十公里/gi); hits.push('10公里'); }
+    else if (/欢乐跑/.test(v)) { clickChip('#fDist', 'R'); strip(/欢乐跑/g); hits.push('欢乐跑'); }
+    // ---- 等级（白金标须先于金标判断） ----
+    if (/白金标/.test(v)) { clickChip('#fLevel', '白金标'); strip(/白金标/g); hits.push('白金标'); }
+    else if (/金标/.test(v)) { clickChip('#fLevel', '金标'); strip(/金标/g); hits.push('金标'); }
+    else if (/精英标/.test(v)) { clickChip('#fLevel', '精英标'); strip(/精英标/g); hits.push('精英标'); }
+    else if (/A1/.test(v)) {
+      const chip = Array.prototype.find.call(document.querySelectorAll('#fLevel .chip'), c => c.textContent.indexOf('A1') >= 0);
+      if (chip && !chip.classList.contains('on')) chip.click();
+      strip(/A1/g); hits.push('A1类');
+    }
+    // ---- 日期窗口 ----
+    let range = null, rangeLabel = '';
+    let m;
+    if ((m = v.match(/(本|这)周([日一二三四五六])/))) {
+      const base = nlMonday(now), t = new Date(base);
+      t.setDate(base.getDate() + NL_WD.indexOf(m[2]));
+      if (t < now) t.setDate(t.getDate() + 7);          // 已过的本周X按下一个同名日理解
+      range = [nlFmt(t), nlFmt(t)];
+      rangeLabel = (t.getTime() === now.getTime() ? '今天' : '本周' + m[2]) + ' ' + nlMD(t);
+    } else if ((m = v.match(/下周([日一二三四五六])/))) {
+      const base = nlMonday(now), t = new Date(base);
+      t.setDate(base.getDate() + 7 + NL_WD.indexOf(m[2]));
+      range = [nlFmt(t), nlFmt(t)];
+      rangeLabel = '下周' + m[2] + ' ' + nlMD(t);
+    } else if (/本周末|这周末/.test(v)) {
+      const sat = new Date(now); sat.setDate(now.getDate() + (6 - now.getDay() + 7) % 7);
+      const sun = new Date(sat); sun.setDate(sat.getDate() + 1);
+      range = [nlFmt(sat), nlFmt(sun)];
+      rangeLabel = '周末 ' + nlMD(sat) + '–' + nlMD(sun);
+    } else if (/(本|这)周/.test(v)) {
+      const a = nlMonday(now), b = new Date(a); b.setDate(a.getDate() + 6);
+      range = [nlFmt(a), nlFmt(b)];
+      rangeLabel = '本周 ' + nlMD(a) + '–' + nlMD(b);
+    } else if (/下周/.test(v)) {
+      const a = nlMonday(now); a.setDate(a.getDate() + 7);
+      const b = new Date(a); b.setDate(a.getDate() + 6);
+      range = [nlFmt(a), nlFmt(b)];
+      rangeLabel = '下周 ' + nlMD(a) + '–' + nlMD(b);
+    } else if (/明天/.test(v)) {
+      const t = new Date(now); t.setDate(now.getDate() + 1);
+      range = [nlFmt(t), nlFmt(t)];
+      rangeLabel = '明天 ' + nlMD(t);
+    } else if (/今天|今日/.test(v)) {
+      range = [nlFmt(now), nlFmt(now)];
+      rangeLabel = '今天 ' + nlMD(now);
+    }
+    if (range) { F.dFrom = range[0]; F.dTo = range[1]; strip(/(本|这)周[日一二三四五六]?|下周[日一二三四五六]?|本周末|这周末|明天|今天|今日/g); hits.push(rangeLabel); }
+    // ---- 剩余文字作为关键词 ----
+    v = v.replace(/^[，。,.\s]+|[，。,.\s]+$/g, '');
+    F.q = v;
+    // ---- 提示条（日期窗口可单独清除） ----
+    const hint = $('#fSearchHint');
+    if (hint) {
+      hint.innerHTML = hits.map(h => '<span class="nl-chip">' + esc(h) + '</span>').join('')
+        + (range ? '<button type="button" class="nl-clear" id="nlDateClear" aria-label="清除日期筛选">清除日期 ✕</button>' : '');
+      const xc = $('#nlDateClear');
+      if (xc) xc.addEventListener('click', () => {
+        F.dFrom = F.dTo = null;
+        if (hint) hint.innerHTML = '';
+        renderRaces();
+      });
+    }
+    renderRaces();
+  }
   $('#fSearch').addEventListener('input', e => {
     clearTimeout(searchTimer);
-    const v = e.target.value.trim();
-    searchTimer = setTimeout(() => { F.q = v; renderRaces(); }, 160);
+    const raw = e.target.value;
+    searchTimer = setTimeout(() => { applyNaturalSearch(raw); }, 160);
   });
   $('#fSort').addEventListener('change', e => { F.sort = e.target.value; renderRaces(); });
   $$('.view-toggle button').forEach(b => b.addEventListener('click', () => {
@@ -416,6 +505,8 @@
       if (F.dist !== 'all' && r.dist.indexOf(F.dist) < 0) return false;
       if (F.status !== 'all' && r.status !== F.status) return false;
       if (!matchRegWin(r)) return false;
+      if (F.dFrom && r.date < F.dFrom) return false;
+      if (F.dTo && r.date > F.dTo) return false;
       if (F.q) {
         const q = F.q.toLowerCase();
         const hay = (r.name + r.city + r.province + r.note + r.tags.join('')).toLowerCase();
@@ -928,10 +1019,11 @@
             ${r.diff.temp ? `<div><dt>比赛日均温</dt><dd>${esc(r.diff.temp)}</dd></div>` : ''}
             ${r.pbScore != null ? `<div><dt>PB 指数</dt><dd><span class="pb-score ${r.pbGrade.g}">${r.pbScore}</span><span class="pb-txt">${r.pbGrade.g} 档 · ${r.pbGrade.t}</span></dd></div>` : ''}` : ''}
             <div><dt>报名状态</dt><dd>${STATUS_TEXT[r.status]}</dd></div>
-            ${r.reg ? `<div><dt>报名开始</dt><dd>${esc(r.reg.open)}</dd></div><div><dt>报名截止</dt><dd>${esc(r.reg.close)}</dd></div>` : ''}
+            ${r.reg ? `<div><dt>报名开始</dt><dd>${esc(r.reg.open)}</dd></div><div><dt>报名截止</dt><dd>${esc(r.reg.close)}</dd></div>${r.reg.mode ? `<div><dt>名额规则</dt><dd>${REG_MODE[r.reg.mode] || esc(r.reg.mode)}</dd></div>` : ''}` : ''}
           </div>
           ${r.reg ? `<p class="reg-src">报名信息来源：${esc(r.reg.src)}（核实于 ${window.RACE_REG_AS_OF || DATA_SNAPSHOT}）</p>` : ''}
-          ${r.diff ? `<p class="reg-src">赛道数据来源：${esc(r.diff.src)}（核实于 2026-09-01）</p>` : ''}
+          ${r.diff ? `<p class="reg-src">赛道数据来源：${esc(r.diff.src)}（核实于 2026-09-01）</p>
+          <p class="reg-src">海拔剖面图需官方逐公里海拔数据——官方未公布的赛事不作推测绘制。</p>` : ''}
         </div>
         ${actionZone(r)}
         ${r.tags.length ? `<div class="m-sec"><h4>TAGS · 赛道标签</h4><div class="m-tags">${r.tags.map(t => `<span>#${esc(t)}</span>`).join('')}</div></div>` : ''}
@@ -1214,7 +1306,27 @@
   }
 
   let pfTab = 'all';
+  // 首屏个人提醒条：收藏赛事中最近的一个「报名即将截止」（7 天内）
+  function renderDDayAlert() {
+    const host = $('#ddayAlert');
+    if (!host) return;
+    const now = Date.now();
+    const items = ALL.filter(r => colSet.has(r.id) && r.reg && !r.past)
+      .map(r => ({ r, closeAt: parseDT(r.reg.close) }))
+      .filter(x => x.closeAt && x.closeAt.getTime() > now && (x.closeAt.getTime() - now) <= 7 * 86400000)
+      .sort((a, b) => a.closeAt - b.closeAt);
+    if (!items.length) { host.hidden = true; host.innerHTML = ''; return; }
+    const x = items[0];
+    const dd = Math.ceil((x.closeAt.getTime() - now) / 86400000);
+    host.hidden = false;
+    host.innerHTML = '<span class="dday-txt">⏰ 你关注的 <b>' + esc(x.r.name) + '</b> '
+      + (dd <= 0 ? '<b>今天</b>' : '<b>' + dd + '</b> 天后') + '截止报名</span>'
+      + (items.length > 1 ? '<span class="dday-more">另有 ' + (items.length - 1) + ' 场即将截止</span>' : '')
+      + '<button type="button" class="dday-go" aria-label="查看' + esc(x.r.name) + '详情">查看</button>';
+    host.querySelector('.dday-go').addEventListener('click', () => openModal(x.r));
+  }
   function renderProfile() {
+    renderDDayAlert();
     const races = ALL.filter(r => colSet.has(r.id)).sort((a, b) => a.date.localeCompare(b.date));
     $('#pfColCount').textContent = races.length;
     const byDate = {};
@@ -1241,6 +1353,14 @@
       if (clash) extra += '<div class="pf-warn">⚠ 撞期：' + byDate[r.date].filter(n => n !== r.name).map(esc).join('、') + '</div>';
       if (isOpen) extra += '<div class="pf-open">● 正在报名中</div>';
       else if (isSoon) extra += '<div class="pf-soon">○ 即将开启报名</div>';
+      // 报名截止 D-Day：7 天内琥珀预警、3 天内红色加急
+      if (r.reg && !r.past) {
+        const c = parseDT(r.reg.close);
+        if (c && c.getTime() > now) {
+          const dd = Math.ceil((c.getTime() - now) / 86400000);
+          if (dd <= 7) extra += '<div class="pf-dday' + (dd <= 3 ? ' urgent' : '') + '">⏰ 报名 ' + (dd <= 0 ? '今天' : '<b>' + dd + '</b> 天后') + '截止（' + esc(r.reg.close) + '）</div>';
+        }
+      }
       return '<div class="pf-item' + (clash ? ' clash' : '') + (isOpen ? ' open' : '') + '">'
         + '<div class="pf-item-top"><b>' + esc(r.name) + '</b>' + statusBadge(r) + '</div>'
         + '<div class="pf-item-meta">' + esc(r.city) + ' · ' + r.date + ' · ' + cd + '</div>'
@@ -1391,7 +1511,7 @@
         card.innerHTML = `
           <div class="rc-when"><b>${fmtMD(it.at)}</b><span>${fmtHM(it.at)}</span><em>${isSoon ? '开抢' : '报名中'}</em></div>
           <div class="rc-name">${esc(it.r.name)}</div>
-          <div class="rc-meta">${it.r.date} 鸣枪 · ${esc(it.r.province)}·${esc(it.r.city)}</div>
+          <div class="rc-meta">${it.r.reg.mode ? `<i class="rc-mode">${REG_MODE[it.r.reg.mode] || ''}</i>` : ''}${it.r.date} 鸣枪 · ${esc(it.r.province)}·${esc(it.r.city)}</div>
           <div class="rc-left">${isSoon ? ('还有 ' + days + ' 天开抢') : (days <= 0 ? '今天截止' : ('剩 ' + days + ' 天'))}</div>`;
       } else {
         card = el('div', 'reg-card rc-unverified');
@@ -1612,6 +1732,18 @@
   /* 仅记录本站点真实发生的变更，日期取数据核实日，绝不编造。 */
   (function initChangelog() {
     const CHANGELOG = [
+      {
+        d: '2026-09-05',
+        items: [
+          '赛道难度扩充至 65 场：头部全程马拉松 72 场全覆盖（新增盐城 / 淮安 / 杨凌农科城 / 新余仙女湖 / 桂林，含关门时间表与来源）',
+          '报名窗口扩充至 17 场：新增桂林（报名中至 9/29）、泗洪、武汉光谷、常州西太湖、杭州钱塘女子、合肥、杭马等核实窗口；多场规模按官方公告修正（杭马 3.6 万、合肥 3 万、杨凌 2 万等）',
+          '报名日历卡片新增「名额规则」标签（超额抽签 / 先报先得 / 抽签+候补），弹窗 KEY DATA 同步展示',
+          '赛事详情弹窗官方报名入口从 9 个扩至 20 个（全部为已核实的赛事官网）',
+          '赛事库搜索支持自然语言：「本周六 全马 A1」「下周 金标 报名中」等口语组合自动解析为筛选条件',
+          '我的赛程新增报名截止 D-Day 预警（7 天内琥珀 / 3 天内红色加急），首屏新增个人提醒条',
+          '补充 MIT 开源许可证'
+        ]
+      },
       {
         d: '2026-09-01',
         items: [

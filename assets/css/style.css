@@ -1288,3 +1288,73 @@ option{background:var(--ink-2);color:#fff;}
   border:1px solid var(--line);color:var(--muted);
 }
 .btn-more:hover{color:var(--ink);border-color:var(--line-2);}
+
+/* ============ P1/P2 增强（2026-09-05）：自然语言搜索 / D-Day 提醒 / 名额规则 ============ */
+
+/* 搜索框自然语言识别提示条（P2-8） */
+.nl-hint{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:2px 2px 8px;}
+.nl-hint[hidden]{display:none;}
+.nl-chip{
+  display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;
+  font-size:11.5px;font-weight:600;letter-spacing:.02em;
+  background:rgba(216,255,62,.12);color:var(--volt);border:1px dashed rgba(216,255,62,.4);
+}
+.nl-clear{
+  padding:3px 10px;border-radius:99px;font-size:11.5px;cursor:pointer;
+  background:transparent;border:1px solid var(--line);color:var(--muted);
+}
+.nl-clear:hover{color:var(--ink);border-color:var(--closed);}
+
+/* 报名日历卡片的名额规则标签（P1-7） */
+.rc-mode{
+  font-style:normal;font-size:10.5px;font-weight:700;padding:1.5px 7px;border-radius:6px;
+  margin-right:6px;vertical-align:1px;
+  background:rgba(111,231,255,.12);color:var(--wa-elite);border:1px solid rgba(111,231,255,.35);
+}
+.rc-unverified .rc-mode{display:none;}
+
+/* 弹窗 KEY DATA 名额规则复用 dd 默认样式，无需额外样式 */
+
+/* 我的赛程：报名截止 D-Day 警示（P1-4） */
+.pf-dday{
+  margin-top:7px;padding:5px 10px;border-radius:9px;font-size:12px;
+  background:rgba(255,196,46,.10);color:var(--wa-gold);border:1px solid rgba(255,196,46,.35);
+}
+.pf-dday b{font-family:var(--f-num);font-size:13.5px;}
+.pf-dday.urgent{
+  background:rgba(226,58,32,.12);color:#FF9C8A;border-color:rgba(226,58,32,.45);
+  animation:ddayPulse 2.2s ease-in-out infinite;
+}
+@keyframes ddayPulse{0%,100%{opacity:1}50%{opacity:.72}}
+@media (prefers-reduced-motion: reduce){.pf-dday.urgent{animation:none;}}
+
+/* 首屏个人提醒条（P1-4）：关注赛事报名即将截止 */
+.dday-alert{
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;
+  margin-top:14px;padding:10px 16px;border-radius:12px;
+  background:rgba(255,196,46,.10);border:1px solid rgba(255,196,46,.4);
+  font-size:13px;color:var(--muted-2);
+}
+.dday-alert[hidden]{display:none;}
+.dday-alert .dday-txt b{color:var(--wa-gold);font-family:var(--f-num);font-size:15px;}
+.dday-alert .dday-txt b:first-child{font-family:inherit;font-size:13px;}
+.dday-alert .dday-more{font-size:11.5px;color:var(--muted);}
+.dday-alert .dday-go{
+  margin-left:auto;padding:5px 14px;border-radius:99px;cursor:pointer;
+  font-size:12px;font-weight:700;background:var(--wa-gold);color:#241a00;border:none;
+}
+.dday-alert .dday-go:hover{filter:brightness(1.08);}
+
+/* 浅色主题适配 */
+:root[data-theme="light"] .nl-chip{background:rgba(110,155,0,.10);color:#527400;border-color:rgba(110,155,0,.4);}
+:root[data-theme="light"] .rc-mode{background:rgba(20,120,150,.08);color:#0E6B86;border-color:rgba(14,107,134,.35);}
+:root[data-theme="light"] .pf-dday{background:rgba(160,110,0,.08);color:#8A6400;border-color:rgba(160,110,0,.35);}
+:root[data-theme="light"] .pf-dday.urgent{background:rgba(200,40,20,.07);color:#B03018;border-color:rgba(200,40,20,.4);}
+:root[data-theme="light"] .dday-alert{background:rgba(160,110,0,.07);border-color:rgba(160,110,0,.3);}
+:root[data-theme="light"] .dday-alert .dday-txt b{color:#8A6400;}
+:root[data-theme="light"] .dday-alert .dday-go{background:#C99400;color:#fff;}
+
+/* 窄屏：提醒条按钮不换行挤压 */
+@media (max-width:560px){
+  .dday-alert .dday-go{margin-left:0;}
+}

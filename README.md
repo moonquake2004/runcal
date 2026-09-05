@@ -7,9 +7,10 @@
 
 - 🔗 在线地址：https://fb29a65789044909aaeee128c296f109.app.workbuddy.link
 - 📦 源码仓库：https://github.com/moonquake2004/runcal
-- 📅 数据快照：**2026-09-01**（473 场赛事，覆盖 34 个省级行政区、205 座城市）
+- 📅 数据快照：**2026-09-05**（473 场赛事，覆盖 34 个省级行政区、205 座城市）
+- 📄 许可：MIT（见 [LICENSE](LICENSE)；赛事名称、logo、官方赛道图版权归各组委会）
 
-![数据快照](https://img.shields.io/badge/数据快照-2026--09--01-blue)
+![数据快照](https://img.shields.io/badge/数据快照-2026--09--05-blue)
 ![赛事总数](https://img.shields.io/badge/赛事-473%20场-orange)
 ![运行环境](https://img.shields.io/badge/node-%3E%3D18-brightgreen)
 ![依赖](https://img.shields.io/badge/依赖-0-lightgrey)
@@ -121,15 +122,15 @@ runcal/
 | --- | --- | --- |
 | `races-2026.json` | 2026 赛季赛事 | 366 场 |
 | `races-2027.json` | 2027 赛季赛事 | 107 场 |
-| `race-diff.json` | 赛道难度（爬升 / 关门 / 海拔 / 评级 / 来源） | 60 场 |
-| `race-reg.json` | 报名窗口（开抢 / 截止 / 来源） | 7 场 |
+| `race-diff.json` | 赛道难度（爬升 / 关门 / 海拔 / 评级 / 来源） | 65 场 |
+| `race-reg.json` | 报名窗口（开抢 / 截止 / 名额规则 / 来源） | 17 场 |
 | `race-reg-as-of.json` | 报名状态快照时点 | 10 条 |
 | `race-results.json` | 历届冠军 / 成绩 | 34 场 |
 | `course-records.json` | 赛道纪录（男女） | 68 场 |
 | `cn-best.json` | 中国选手在该赛事的最好成绩 | 53 场 |
 | `world-records.json` | 世界纪录（男女） | 2 组 |
 | `world-majors.json` | 世界马拉松六大满贯 | 7 场 |
-| `race-urls.json` | 官方报名 / 官网链接 | 9 条 |
+| `race-urls.json` | 官方报名 / 官网链接 | 20 条 |
 | `course-images.json` | 赛道图映射 | 3 场 |
 
 赛事记录采用**紧凑数组**格式（为减小体积），字段顺序见 `app.js` 的 `FIELDS`：
@@ -194,7 +195,8 @@ PORT=3000 node server.js   # 默认 3000
 
 ## 许可
 
-暂未附加开源许可证（默认保留所有权利）。如需对外授权，建议补一份 MIT。
+MIT License（见 [LICENSE](LICENSE)）。赛事数据为公开渠道人工整理，欢迎使用，但请自行核实时效性；
+赛事名称、logo、官方赛道图等素材版权归各赛事组委会所有。
 
 ---
 

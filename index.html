@@ -27,7 +27,7 @@
 <meta name="twitter:title" content="跑历 RunCal · 中国马拉松赛季日历 2026—2027" data-page-node-id="D43yh9bfCfIAzeDJs3X3Eo">
 <meta name="twitter:description" content="34 省 473 场路跑赛事的中国马拉松赛季日历。" data-page-node-id="r7beULyt5Y2iqeB7Vz9k6F">
 <meta name="twitter:image" content="https://fb29a65789044909aaeee128c296f109.app.workbuddy.link/assets/og-cover.png" data-page-node-id="Bhq87yh8sBNpgGys8zAzid">
-<link rel="stylesheet" href="assets/css/style.css?v=20260902g" data-page-node-id="53Tewn6ObbK3T1xiS9TaiR">
+<link rel="stylesheet" href="assets/css/style.css?v=20260905a" data-page-node-id="53Tewn6ObbK3T1xiS9TaiR">
 </head>
 <body data-page-node-id="HFSBF5t72v6FJpHUpVpGwt">
 
@@ -104,6 +104,7 @@
         <button class="cd-btn p" id="cdGo" data-page-node-id="W4Vz3giYMW7fCMFeEmcrah">查看该站详情</button>
         <button class="cd-btn s" id="cdJump" data-page-node-id="YVH257uyklFT86zgiRIsX9">跳到本月赛历</button>
       </div>
+      <div class="dday-alert" id="ddayAlert" hidden></div>
       <div class="cd-compact" id="cdCompact" hidden></div>
     </div>
   </div>
@@ -268,7 +269,7 @@
       <div class="f-row" data-page-node-id="F09Bc6qSDClAEFC3gWxC4w">
         <div class="search-box" data-page-node-id="Vr6bv11nqqVsh68WvNJaNR">
           <span class="ico" data-page-node-id="dqHz62hTEudMrx68EInCUv"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" data-page-node-id="1AxRsnMfoLgOpLMXgqKt2S"><circle cx="11" cy="11" r="7" data-page-node-id="RlCBPh4GNDsENgc6WEbJ7S"/><path d="M20 20l-3.5-3.5" data-page-node-id="vY1hqSNoi1IedE7pPHtcrh"/></svg></span>
-          <input type="text" id="fSearch" placeholder="搜索赛事 / 城市 / 省份" data-page-node-id="UQ07VJagEb71fZPJNeynWN">
+          <input type="text" id="fSearch" placeholder="搜索赛事 / 城市 / 省份，支持「本周六 全马 A1」" data-page-node-id="UQ07VJagEb71fZPJNeynWN">
         </div>
         <span class="f-lab" data-page-node-id="OMOG8DOomFgszuJ8CbakOn">状态</span>
         <div class="chips" id="fStatus" data-page-node-id="4jnMbaxdzAFX9XizoVqaQJ">
@@ -280,6 +281,7 @@
           <button class="chip" data-v="done" data-page-node-id="nMPXp39HyIp9CBf2PacsSF">已结束</button>
         </div>
       </div>
+      <div class="nl-hint" id="fSearchHint" hidden></div>
 
       <!-- 一级常驻：排序 / 视图 / 结果数 / 更多筛选 -->
       <div class="f-row" data-page-node-id="dIIWAYQrBii2ZD62tFOcQQ">
@@ -573,6 +575,6 @@
 <div id="boot" class="boot">正在加载赛事数据…</div>
 
 <!-- 数据层（P3-10）：loader 并行拉取 data/*.json 挂载到 window，就绪后再注入 app.js -->
-<script src="assets/js/loader.js?v=20260902g"></script>
+<script src="assets/js/loader.js?v=20260905a"></script>
 </body>
 </html>
