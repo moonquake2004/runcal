@@ -7,10 +7,10 @@
 
 - 🔗 在线地址：https://fb29a65789044909aaeee128c296f109.app.workbuddy.link
 - 📦 源码仓库：https://github.com/moonquake2004/runcal
-- 📅 数据快照：**2026-09-05**（473 场赛事，覆盖 34 个省级行政区、205 座城市）
+- 📅 数据快照：**2026-09-13**（473 场赛事，覆盖 34 个省级行政区、205 座城市）
 - 📄 许可：MIT（见 [LICENSE](LICENSE)；赛事名称、logo、官方赛道图版权归各组委会）
 
-![数据快照](https://img.shields.io/badge/数据快照-2026--09--05-blue)
+![数据快照](https://img.shields.io/badge/数据快照-2026--09--13-blue)
 ![赛事总数](https://img.shields.io/badge/赛事-473%20场-orange)
 ![运行环境](https://img.shields.io/badge/node-%3E%3D18-brightgreen)
 ![依赖](https://img.shields.io/badge/依赖-0-lightgrey)
@@ -68,7 +68,7 @@
 - 报名窗口：赛事官网报名须知、主办城市人民政府网、本地宝等，**逐条带 `src` 来源字段**
 - 赛道难度（累计爬升 / 关门时间 / 海拔）：官方竞赛规程、百度百科赛道数据，**逐条带 `src` 来源字段**
 - 赛道纪录、历届冠军、中国选手最好成绩：赛事官方成绩公告、中国田协
-- 世界纪录、六大满贯：World Athletics、各赛事官网
+- 世界纪录、七大满贯：World Athletics、各赛事官网
 
 已知的不完整之处（**公开说明，不掩饰**）：
 1. 缺少官方逐公里海拔剖面数据，因此赛道难度只用"累计爬升 + 关门时间 + 海拔描述"三件套，不做精确的坡度图
@@ -88,6 +88,18 @@ node server.js
 > 必须通过 HTTP 服务访问（`node server.js` 或任意静态服务器，如 `npx serve`）。
 
 零依赖：只用 Node 内置模块（`http` / `fs` / `path`），**不需要 `npm install`**。
+
+### 改数据后务必跑校验
+
+```bash
+npm test        # 等价于 node tools/validate-data.js
+```
+
+`tools/validate-data.js` 会检查：字段数 / 类型 / 枚举合法性、日期是否真实存在、
+跨文件引用是否悬空、报名状态与比赛日是否矛盾、快照日期与缓存版本号三处是否一致。
+发现问题以退出码 1 结束，可直接用于 pre-commit 或 CI。
+（此前无校验，`races-2026.json` 366 行只有 12 个字段、`dist="HM"`、
+`course-records.json` 悬空键等问题都是靠人工才发现。）
 
 ## 项目结构
 
@@ -113,6 +125,9 @@ runcal/
 │   └── …（详见下表）
 └── tools/
     ├── build-json.js       # 一次性迁移脚本（legacy JS → JSON）
+    │                       # ⚠ 已加守卫：data/ 比 legacy/ 新时拒绝执行（防静默回滚），
+    │                       #   确需回滚用 node tools/build-json.js --force
+    ├── validate-data.js    # 数据校验（npm test）
     └── legacy/             # 归档的历史 JS 数据文件，运行时不再引用
 ```
 
@@ -123,13 +138,13 @@ runcal/
 | `races-2026.json` | 2026 赛季赛事 | 366 场 |
 | `races-2027.json` | 2027 赛季赛事 | 107 场 |
 | `race-diff.json` | 赛道难度（爬升 / 关门 / 海拔 / 评级 / 来源） | 65 场 |
-| `race-reg.json` | 报名窗口（开抢 / 截止 / 名额规则 / 来源） | 17 场 |
-| `race-reg-as-of.json` | 报名状态快照时点 | 10 条 |
-| `race-results.json` | 历届冠军 / 成绩 | 34 场 |
+| `race-reg.json` | 报名窗口（开抢 / 截止 / 名额规则 / 来源） | 20 场 |
+| `race-reg-as-of.json` | 报名状态快照时点（单个日期字符串） | 1 条 |
+| `race-results.json` | 历届冠军 / 成绩 | 35 场 |
 | `course-records.json` | 赛道纪录（男女） | 68 场 |
 | `cn-best.json` | 中国选手在该赛事的最好成绩 | 53 场 |
 | `world-records.json` | 世界纪录（男女） | 2 组 |
-| `world-majors.json` | 世界马拉松六大满贯 | 7 场 |
+| `world-majors.json` | 世界马拉松七大满贯 | 7 场 |
 | `race-urls.json` | 官方报名 / 官网链接 | 20 条 |
 | `course-images.json` | 赛道图映射 | 3 场 |
 
@@ -165,8 +180,9 @@ data/index.json（清单）
 
 1. 直接编辑 `data/*.json`（这是唯一数据源，`tools/legacy/*.js` 仅供归档参考）
 2. 同步更新 `data/index.json` 里的 `snapshot` 字段，以及 `app.js` 里的 `DATA_SNAPSHOT` 常量
-3. **改完必须 bump 缓存版本号**：`index.html` 里 `loader.js?v=YYYYMMDDx` 和 `loader.js` 里的 `VER` 常量，
-   两处保持一致，否则 CDN / 浏览器会继续用旧缓存
+3. **改完必须 bump 缓存版本号（共 3 处，缺一不可）**：`index.html` 里 `loader.js?v=YYYYMMDDx`、
+   `index.html` 里 `style.css?v=YYYYMMDDx`、`loader.js` 里的 `VER` 常量，三处保持一致，
+   否则 CDN / 浏览器会继续用旧缓存（只改样式却忘了 CSS 版本号 = 用户仍看到旧样式）
 4. `tools/build-json.js` 是一次性迁移工具（legacy JS → JSON，含往返校验），后续赛季数据无需再跑
 
 ## 部署
@@ -192,6 +208,7 @@ PORT=3000 node server.js   # 默认 3000
 - 未实现 Service Worker，**暂不支持离线访问**（"添加到主屏幕"后可像 App 一样打开，但仍需联网）
 - 无官方逐公里海拔数据，不做赛道坡度剖面图
 - 数据为人工整理的非实时快照，报名信息请以赛事官方公告为准
+- 尚无每场赛事的独立可分享 URL 与 SEO 收录（详情走 `#race=` 片段哈希），搜索引擎基本看不到赛事内容
 
 ## 许可
 

@@ -4,6 +4,34 @@
 (function () {
   'use strict';
 
+  /* ---------- 0. 全局错误兜底（P1-1） ----------
+     任何运行期异常都给出可读提示，避免出现「什么都不渲染也没有提示」的空页。 */
+  function showFatal(msg) {
+    try {
+      var box = document.getElementById('fatalError');
+      if (!box) {
+        box = document.createElement('div');
+        box.id = 'fatalError';
+        box.setAttribute('role', 'alert');
+        box.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;z-index:9999;' +
+          'background:#7a1d10;color:#fff;padding:12px 16px;border-radius:10px;' +
+          'font:13px/1.7 system-ui,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.45)';
+        document.body.appendChild(box);
+      }
+      box.innerHTML = '<b>页面渲染出现异常</b><br>' + String(msg).replace(/[<>&]/g, function (c) {
+        return { '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c];
+      }) + '<br><span style="opacity:.8">可先刷新页面；若持续出现请反馈。</span>';
+    } catch (e) { /* 兜底本身不再抛 */ }
+  }
+  window.addEventListener('error', function (e) {
+    if (e && e.message) {
+      showFatal(e.message + (e.filename ? '（' + String(e.filename).split('/').pop() + ':' + e.lineno + '）' : ''));
+    }
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    showFatal('异步错误：' + ((e && e.reason && (e.reason.message || e.reason)) || '未知'));
+  });
+
   /* ---------- 1. 数据装配 ---------- */
   const FIELDS = ['name','city','province','region','date','caa','wa','dist','scale','status','tags','note','confirmed'];
   const WA_WEIGHT = { '白金标': 5, '金标': 4, '精英标': 3, '标牌': 2 };
@@ -16,7 +44,7 @@
 
   const TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
   const TODAY_STR = fmtDate(TODAY);
-  const DATA_SNAPSHOT = '2026-09-05';  // 数据最后更新日期（非访问当天，避免页脚/概览误显为今日）
+  const DATA_SNAPSHOT = '2026-09-13';  // 数据最后更新日期（非访问当天，避免页脚/概览误显为今日）
 
   function fmtDate(d) {
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -31,22 +59,27 @@
   function fmtMD(d) { return (d.getMonth() + 1) + '月' + d.getDate() + '日'; }
   function fmtHM(d) { return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
 
+  const BAD_ROWS = [];
   function hydrate(rows, year) {
     return rows.map((r, i) => {
       const o = {};
-      FIELDS.forEach((f, k) => { o[f] = r[k] !== undefined ? r[k] : ''; });
+      FIELDS.forEach((f, k) => { o[f] = (r[k] !== undefined && r[k] !== null) ? r[k] : ''; });
       o.year = year;
       o.id = year + '-' + i;
       o.caa = String(o.caa || '');
       o.wa = String(o.wa || '');
       o.scale = Number(o.scale) || 0;
       o.tags = o.tags ? String(o.tags).split(',').map(s => s.trim()).filter(Boolean) : [];
-      o.month = Number(o.date.slice(5, 7));
-      o.day = Number(o.date.slice(8, 10));
-      o.confirmed = o.confirmed === 1 || o.confirmed === '1';
-      // 已过比赛日一律视为已结束
-      if (o.date < TODAY_STR && o.status !== 'done') o.status = 'done';
-      o.past = o.date < TODAY_STR;
+      // 日期必须是合法 YYYY-MM-DD 字符串：异常行不再抛异常（此前会自动整页空白），
+      // 记录到 BAD_ROWS 并在启动后提示。manual 编辑 JSON 一个漏写的引号即可触发。
+      const ds = typeof o.date === 'string' ? o.date : '';
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(ds)) BAD_ROWS.push(year + ' · ' + String(r[0] || '(未命名)'));
+      o.month = Number(ds.slice(5, 7)) || 0;
+      o.day = Number(ds.slice(8, 10)) || 0;
+      o.confirmed = o.confirmed === 1 || o.confirmed === '1' || o.confirmed === true;
+      // 已过比赛日一律视为已结束（空日期不参与判断）
+      if (ds && ds < TODAY_STR && o.status !== 'done') o.status = 'done';
+      o.past = !!ds && ds < TODAY_STR;
       o.levelScore = Math.max(WA_WEIGHT[o.wa] || 0, CAA_WEIGHT[o.caa] || 0);
       o.distList = String(o.dist || '').split('').map(c => DIST_LABEL[c]).filter(Boolean);
       // 官方报名入口（头部赛事，来自 entry.js 已核实清单）
@@ -57,7 +90,14 @@
 
   const ALL = hydrate(window.RACES_2026 || [], 2026)
     .concat(hydrate(window.RACES_2027 || [], 2027))
-    .sort((a, b) => a.date.localeCompare(b.date) || a.name.localeCompare(b.name, 'zh'));
+    .sort((a, b) => String(a.date).localeCompare(String(b.date)) || a.name.localeCompare(b.name, 'zh'));
+
+  // 数据层异常可见化（P1-1）：不再静默吞掉格式错误的行
+  if (BAD_ROWS.length) {
+    console.warn('[RunCal] 日期格式异常的赛事行：', BAD_ROWS);
+    showFatal('有 ' + BAD_ROWS.length + ' 条赛事日期格式异常，已跳过：'
+      + BAD_ROWS.slice(0, 3).join('、') + (BAD_ROWS.length > 3 ? ' 等' : ''));
+  }
 
   // 报名时间（regtime.js）：同名赛事去重（2026 真实届优先），
   // 仅对收录到的第一份挂载，并按官方报名窗口实时修正报名状态
@@ -1030,7 +1070,7 @@
             ${r.reg ? `<div><dt>报名开始</dt><dd>${esc(r.reg.open)}</dd></div><div><dt>报名截止</dt><dd>${esc(r.reg.close)}</dd></div>${r.reg.mode ? `<div><dt>名额规则</dt><dd>${REG_MODE[r.reg.mode] || esc(r.reg.mode)}</dd></div>` : ''}` : ''}
           </div>
           ${r.reg ? `<p class="reg-src">报名信息来源：${esc(r.reg.src)}（核实于 ${window.RACE_REG_AS_OF || DATA_SNAPSHOT}）</p>` : ''}
-          ${r.diff ? `<p class="reg-src">赛道数据来源：${esc(r.diff.src)}（核实于 2026-09-01）</p>
+          ${r.diff ? `<p class="reg-src">赛道数据来源：${esc(r.diff.src)}（核实于 ${DATA_SNAPSHOT}）</p>
           <p class="reg-src">海拔剖面图需官方逐公里海拔数据——官方未公布的赛事不作推测绘制。</p>` : ''}
         </div>
         ${actionZone(r)}
@@ -1118,15 +1158,17 @@
     document.body.removeChild(ta);
   }
   modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+  // 通用焦点陷阱（P1-8）：详情弹窗与对比弹窗共用
+  function trapFocus(container, e) {
+    const f = container.querySelectorAll('a[href],button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])');
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && modal.classList.contains('show')) closeModal();
-    if (e.key === 'Tab' && modal.classList.contains('show')) {
-      const f = modal.querySelectorAll('a[href],button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])');
-      if (!f.length) return;
-      const first = f[0], last = f[f.length - 1];
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-    }
+    if (e.key === 'Tab' && modal.classList.contains('show')) trapFocus(modal, e);
   });
 
   /* ---------- 11.5 赛事对比 ---------- */
@@ -1180,6 +1222,7 @@
   });
 
   const cmpModal = $('#cmpModal'), cmpCard = $('#cmpCard');
+  let cmpLastFocused = null;
   function openCompare() {
     const races = [...compareSet].map(id => ALL.find(r => r.id === id)).filter(Boolean);
     if (races.length < 2) return;
@@ -1200,7 +1243,7 @@
       ['报名入口', r => r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">官网 / 报名 ↗</a>` : '—']
     ];
     let html = '<button class="modal-close" id="cmpClose">✕</button>';
-    html += '<h3 class="cmp-title">赛事对比 · ' + races.length + ' 场</h3>';
+    html += '<h3 class="cmp-title" id="cmpTitle">赛事对比 · ' + races.length + ' 场</h3>';
     html += '<div class="cmp-scroll"><table class="cmp-table"><thead><tr><th>对比项</th>';
     races.forEach(r => { html += `<th>${esc(r.name)}<span class="cmp-th-sub">${esc(r.province)}·${esc(r.city)}</span></th>`; });
     html += '</tr></thead><tbody>';
@@ -1214,11 +1257,21 @@
     cmpCard.innerHTML = html;
     cmpModal.classList.add('show');
     document.body.style.overflow = 'hidden';
+    cmpLastFocused = document.activeElement;
     $('#cmpClose').onclick = closeCompare;
+    const firstFocus = cmpCard.querySelector('a[href],button:not([disabled])');
+    if (firstFocus) firstFocus.focus();
   }
-  function closeCompare() { cmpModal.classList.remove('show'); document.body.style.overflow = ''; }
+  function closeCompare() {
+    cmpModal.classList.remove('show');
+    document.body.style.overflow = '';
+    if (cmpLastFocused && cmpLastFocused.focus) { try { cmpLastFocused.focus(); } catch (e) {} }
+  }
   cmpModal.addEventListener('click', e => { if (e.target === cmpModal) closeCompare(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && cmpModal.classList.contains('show')) closeCompare(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && cmpModal.classList.contains('show')) closeCompare();
+    if (e.key === 'Tab' && cmpModal.classList.contains('show')) trapFocus(cmpCard, e);
+  });
 
   /* ---------- 12. 滚动进度 + 赛事库筛选栏自动隐藏 ---------- */
   const bar = $('#progressBar');
@@ -1272,17 +1325,27 @@
   function parseTime(str) {
     str = (str || '').trim(); if (!str) return null;
     let h = 0, m, s;
+    // 支持三种写法（与输入框 placeholder 的宣传保持一致）：
+    //   3:15:30 → 时:分:秒 ；195:30 → 总分钟:秒 ；195 → 纯总分钟
     if (str.indexOf(':') >= 0) {
-      const p = str.split(':').map(Number);
-      if (p.some(isNaN)) return null;
-      if (p.length === 3) { h = p[0]; m = p[1]; s = p[2]; }
-      else if (p.length === 2) { m = p[0]; s = p[1]; }
-      else return null;
+      const seg = str.split(':');
+      // 空段（如 ":" 或 "1::2"）按非法处理，避免 Number('') === 0 被误当成有效成绩
+      if (seg.some(x => !x.trim().length)) return null;
+      const p = seg.map(Number);
+      if (p.some(isNaN) || p.some(x => x < 0)) return null;
+      if (p.length === 3) {
+        h = p[0]; m = p[1]; s = p[2];
+        if (m > 59 || s > 59) return null;
+      } else if (p.length === 2) {
+        // 两段式按「总分钟:秒」解释（旧实现把 195 判为非法分钟，导致宣传格式全部失效）
+        m = p[0]; s = p[1];
+        if (s > 59) return null;
+      } else return null;
     } else {
-      const n = Number(str); if (isNaN(n)) return null;
+      const n = Number(str); if (isNaN(n) || n < 0) return null;
       m = Math.floor(n); s = Math.round((n - m) * 60);
+      if (s > 59) { m += 1; s = 0; }
     }
-    if (m < 0 || m > 59 || s < 0 || s > 59) return null;
     return h * 3600 + m * 60 + s;
   }
   function fmtTime(sec) {
@@ -1423,14 +1486,22 @@
         'SUMMARY:' + escapeICS('🏃 ' + r.name),
         'LOCATION:' + escapeICS(r.province + ' ' + r.city),
         'DESCRIPTION:' + escapeICS(note));
-      // 报名截止提醒（提前 1 天，仅窗口未过期时）
+      lines.push('END:VEVENT');
+      // 报名截止提醒（P1-2）：VALARM 的 TRIGGER 是相对「所属事件 DTSTART」的，
+      // 旧实现把 VALARM 挂在比赛日事件上，导致手机日历在开赛前一天才弹
+      //「报名截止提醒」（此时报名早已截止）。必须为报名截止单独建一个事件。
       if (r.reg) {
         const closeAt = parseDT(r.reg.close);
         if (closeAt && closeAt > now) {
-          lines.push('BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:报名截止提醒', 'TRIGGER:-P1D', 'END:VALARM');
+          const closeEnd = new Date(closeAt.getTime() + 30 * 60000);
+          lines.push('BEGIN:VEVENT', 'UID:' + r.id + '-reg@runcal.local', 'DTSTAMP:' + icsDT(now),
+            'DTSTART:' + icsDT(closeAt), 'DTEND:' + icsDT(closeEnd),
+            'SUMMARY:' + escapeICS('📝 报名截止 · ' + r.name),
+            'DESCRIPTION:' + escapeICS('报名截止：' + r.reg.close + '\n来源：' + r.reg.src + '\n报名请以赛事组委会官方渠道为准。'),
+            'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:报名即将截止', 'TRIGGER:-P1D', 'END:VALARM',
+            'END:VEVENT');
         }
       }
-      lines.push('END:VEVENT');
     });
     lines.push('END:VCALENDAR');
     return new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
@@ -1762,6 +1833,15 @@
   /* 仅记录本站点真实发生的变更，日期取数据核实日，绝不编造。 */
   (function initChangelog() {
     const CHANGELOG = [
+      {
+        d: '2026-09-13',
+        items: [
+          '报名窗口扩充至 20 场：新增太原（7/15 15:00–7/29 23:59，先缴费后抽签）、衡水湖（预报名 7/24 10:00–7/30 18:00）、郑州（8/10 10:00–8/19 17:00，费用 200 元/人）三场已核实窗口，均逐条带来源',
+          '新增沈阳马拉松 2026 赛果（9/6 举办，22000 人）：男子冠军 Francis Kipkorir Langat（肯尼亚）、女子冠军 Minalle（埃塞俄比亚）；中国籍女子第一朱卿 2:30:48（女子组季军）',
+          '报名状态一致性修正：8 场已完赛赛事由「待开启 / 已截止」改为「已结束」；6 场 9-13 当日开赛赛事由「待开启」改为「已截止」（报名窗口均已关闭）',
+          '赛道数据来源标注改为跟随数据快照日期，不再写死'
+        ]
+      },
       {
         d: '2026-09-05',
         items: [

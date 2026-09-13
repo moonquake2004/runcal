@@ -8,7 +8,7 @@
  * 任一请求失败都会显示明确错误，而不是白屏。
  * ============================================================ */
 (function () {
-  var VER = '20260905b';
+  var VER = '20260913a';
   var q = '?v=' + VER;
 
   function showError(msg) {
@@ -53,13 +53,17 @@
       window.hasCourseImage = function (raceName) {
         return !!(window.COURSE_IMAGES && window.COURSE_IMAGES[raceName]);
       };
-      // 数据已就绪，移除加载提示并注入主程序
-      var boot = document.getElementById('boot');
-      if (boot) boot.parentNode.removeChild(boot);
+      // 数据已就绪，注入主程序。
+      // 注意：加载提示 #boot 必须等 app.js 执行成功后再移除。旧实现在注入前就删掉，
+      // 一旦 app.js 运行期抛异常，页面会变成「无任何提示的空页」。
       var s = document.createElement('script');
       s.src = 'assets/js/app.js' + q;
       s.onerror = function () {
         showError('主程序 app.js 加载失败（' + s.src + '）。');
+      };
+      s.onload = function () {
+        var boot = document.getElementById('boot');
+        if (boot && boot.parentNode) boot.parentNode.removeChild(boot);
       };
       document.body.appendChild(s);
     })

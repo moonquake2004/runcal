@@ -26,6 +26,10 @@
   --wa-label:   #B0FF8A;
   --go:         #2FE0A8;   /* 行动绿：报名中 / 立即行动 */
   --closed:     #E08B8B;   /* 灰红：报名已截止（5.2 报名状态语义色） */
+  /* 文字用色变体：深色主题下等同原色，明亮主题下换成满足 WCAG AA 的深色变体 */
+  --wa-gold-text:var(--wa-gold);--wa-elite-text:var(--wa-elite);--wa-label-text:var(--wa-label);
+  --wa-platinum-text:var(--wa-platinum);--closed-text:var(--closed);
+  --diff-low:#2fe0a8;--diff-mid:#ffc42e;--diff-high:#ff6348;
 
   --radius: 14px;
   --shadow: 0 18px 44px -18px rgba(0,0,0,.75);
@@ -422,21 +426,21 @@ option{background:var(--ink-2);color:#fff;}
 .badge.caa{background:rgba(255,255,255,.10);color:var(--muted-2);border:1px solid var(--line-2);}
 .badge.dist{background:rgba(216,255,62,.13);color:var(--volt);border:1px solid rgba(216,255,62,.24);}
 /* 赛道难度标签（difficulty.js，报告 P1-3） */
-.badge.diff-低{background:rgba(47,224,168,.12);color:#2fe0a8;border:1px solid rgba(47,224,168,.26);}
-.badge.diff-中{background:rgba(255,196,46,.12);color:#ffc42e;border:1px solid rgba(255,196,46,.28);}
-.badge.diff-高{background:rgba(255,99,72,.14);color:#ff6348;border:1px solid rgba(255,99,72,.32);}
+.badge.diff-低{background:rgba(47,224,168,.12);color:var(--diff-low);border:1px solid rgba(47,224,168,.26);}
+.badge.diff-中{background:rgba(255,196,46,.12);color:var(--diff-mid);border:1px solid rgba(255,196,46,.28);}
+.badge.diff-高{background:rgba(255,99,72,.14);color:var(--diff-high);border:1px solid rgba(255,99,72,.32);}
 /* 弹窗难度评级（低=绿 / 中=琥珀 / 高=红） */
 .diff-level{display:inline-flex;align-items:center;gap:4px;font-weight:700;padding:2px 9px;border-radius:99px;font-size:12px;}
-.diff-level.低{background:rgba(47,224,168,.13);color:#2fe0a8;border:1px solid rgba(47,224,168,.28);}
-.diff-level.中{background:rgba(255,196,46,.13);color:#ffc42e;border:1px solid rgba(255,196,46,.3);}
-.diff-level.高{background:rgba(255,99,72,.15);color:#ff6348;border:1px solid rgba(255,99,72,.34);}
+.diff-level.低{background:rgba(47,224,168,.13);color:var(--diff-low);border:1px solid rgba(47,224,168,.28);}
+.diff-level.中{background:rgba(255,196,46,.13);color:var(--diff-mid);border:1px solid rgba(255,196,46,.3);}
+.diff-level.高{background:rgba(255,99,72,.15);color:var(--diff-high);border:1px solid rgba(255,99,72,.34);}
 /* PB 可量化指数（P2-5）：S 金 / A 绿 / B 琥珀 / C 橙 / D 红 */
 .pb-score{display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:26px;padding:0 8px;border-radius:8px;font-weight:800;font-size:14px;margin-right:8px;vertical-align:-2px;}
 .pb-score.S{background:linear-gradient(135deg,#ffc42e,#ffb800);color:#241a00;box-shadow:0 2px 10px rgba(255,196,46,.35);}
-.pb-score.A{background:rgba(47,224,168,.16);color:#2fe0a8;border:1px solid rgba(47,224,168,.4);}
-.pb-score.B{background:rgba(255,196,46,.14);color:#ffc42e;border:1px solid rgba(255,196,46,.32);}
+.pb-score.A{background:rgba(47,224,168,.16);color:var(--diff-low);border:1px solid rgba(47,224,168,.4);}
+.pb-score.B{background:rgba(255,196,46,.14);color:var(--diff-mid);border:1px solid rgba(255,196,46,.32);}
 .pb-score.C{background:rgba(255,153,51,.15);color:#ff9933;border:1px solid rgba(255,153,51,.34);}
-.pb-score.D{background:rgba(255,99,72,.15);color:#ff6348;border:1px solid rgba(255,99,72,.34);}
+.pb-score.D{background:rgba(255,99,72,.15);color:var(--diff-high);border:1px solid rgba(255,99,72,.34);}
 .pb-txt{font-size:12px;color:var(--muted-2);}
 .pb-g{font-style:normal;font-weight:800;font-size:13px;margin-left:4px;}
 .rank-val .pb-g{color:var(--volt);}
@@ -452,10 +456,10 @@ option{background:var(--ink-2);color:#fff;}
 .st.open{background:rgba(47,224,168,.15);color:var(--go);box-shadow:inset 0 0 0 1px rgba(47,224,168,.28);}
 /* 5.2 报名状态语义色：报名中=青绿 / 待开启=黄 / 已截止=灰红 / 已结束=灰
    待官宣(tba)同样用黄，但加虚线描边与「待官宣」语义区分，避免与「待开启」混淆 */
-.st.soon{background:rgba(255,196,46,.14);color:var(--wa-gold);}
-.st.closed{background:rgba(224,139,139,.13);color:var(--closed);box-shadow:inset 0 0 0 1px rgba(224,139,139,.22);}
+.st.soon{background:rgba(255,196,46,.14);color:var(--wa-gold-text);}
+.st.closed{background:rgba(224,139,139,.13);color:var(--closed-text);box-shadow:inset 0 0 0 1px rgba(224,139,139,.22);}
 .st.done{background:rgba(255,255,255,.05);color:var(--muted);}
-.st.tba{background:rgba(255,196,46,.10);color:var(--wa-gold);box-shadow:inset 0 0 0 1px rgba(255,196,46,.45);}
+.st.tba{background:rgba(255,196,46,.10);color:var(--wa-gold-text);box-shadow:inset 0 0 0 1px rgba(255,196,46,.45);}
 .bib:focus-visible,.tl-item:focus-visible,.worth-card:focus-visible,.reg-card:focus-visible{outline:2px solid var(--volt);outline-offset:2px;}
 
 .bib-flag{
@@ -518,7 +522,7 @@ option{background:var(--ink-2);color:#fff;}
 .rank-row:hover{background:rgba(255,255,255,.055);border-color:var(--line-2);transform:translateX(3px);}
 .rank-no{font-family:var(--f-num);font-size:25px;line-height:1;color:var(--muted);}
 /* 前三名金/银/铜：改用显式类名，避免顶部有 .rank-note 时 nth-child 错位 */
-.rank-row.top1 .rank-no{color:var(--wa-gold);}
+.rank-row.top1 .rank-no{color:var(--wa-gold-text);}
 .rank-row.top2 .rank-no{color:#D6D9E0;}
 .rank-row.top3 .rank-no{color:#D08A4E;}
 .rank-main{min-width:0;}
@@ -687,7 +691,7 @@ option{background:var(--ink-2);color:#fff;}
 .rk-anon{color:var(--muted-2);font-size:12.5px;font-weight:500;font-style:italic;}
 .rk-m{font-size:11.5px;color:var(--muted-2);}
 .rk-m b{font-family:var(--f-num);font-size:19px;color:var(--volt);margin-left:4px;letter-spacing:.02em;}
-.rk-note{display:block;margin-top:5px;font-size:10.5px;color:var(--wa-gold);font-style:normal;}
+.rk-note{display:block;margin-top:5px;font-size:10.5px;color:var(--wa-gold-text);font-style:normal;}
 .res-record{
   margin-top:11px;font-size:12px;font-weight:700;color:var(--ink);
   background:linear-gradient(100deg,var(--volt),var(--wa-gold));
@@ -1136,12 +1140,17 @@ option{background:var(--ink-2);color:#fff;}
 
 /* #102 晨光模式（明亮主题）— 整 palette 翻转，白底卡片上白色 tint 降级为 no-op、黑色阴影降透明度 */
 :root[data-theme="light"]{
-  --track:#E23A20;--track-deep:#A82410;--energy:#F2710E;--volt:#6E9B00;--volt-dim:#557A00;
+  --track:#E23A20;--track-deep:#A82410;--energy:#A8490A;--volt:#4F7000;--volt-dim:#3D5A00;
   --ink:#E9EDF3;--ink-2:#FFFFFF;--ink-3:#F1F4F9;
   --line:rgba(10,12,17,.10);--line-2:rgba(10,12,17,.16);
   --chalk:#10141C;--muted:#5A6678;--muted-2:#34404F;
-  --go:#109E78;
+  --go:#0B7A5C;
   --shadow:0 18px 44px -18px rgba(0,0,0,.20);--shadow-sm:0 6px 18px -8px rgba(0,0,0,.14);
+  /* 对比度修正（WCAG AA ≥4.5:1）：标牌/状态色作为「文字」时用深色变体；
+     作为「徽章背景」时保持原浅色底 + 深色文字（组合本身已达标）。 */
+  --wa-gold-text:#8A6400;--wa-elite-text:#0E6B86;--wa-label-text:#3F6B14;
+  --wa-platinum-text:#5A5F66;--closed-text:#B03018;
+  --diff-low:#0C7A56;--diff-mid:#8A6400;--diff-high:#B03018;
 }
 :root[data-theme="light"] body::before{
   background-image:
@@ -1203,7 +1212,7 @@ option{background:var(--ink-2);color:#fff;}
 .log-day:first-child{border-top:0;}
 .log-day .d{
   font-family:var(--f-num);font-size:13px;letter-spacing:.08em;
-  color:var(--wa-gold);margin-bottom:7px;
+  color:var(--wa-gold-text);margin-bottom:7px;
 }
 .log-day ul{list-style:none;}
 .log-day li{
@@ -1303,13 +1312,13 @@ option{background:var(--ink-2);color:#fff;}
   padding:3px 10px;border-radius:99px;font-size:11.5px;cursor:pointer;
   background:transparent;border:1px solid var(--line);color:var(--muted);
 }
-.nl-clear:hover{color:var(--ink);border-color:var(--closed);}
+.nl-clear:hover{color:var(--ink);border-color:var(--closed-text);}
 
 /* 报名日历卡片的名额规则标签（P1-7） */
 .rc-mode{
   font-style:normal;font-size:10.5px;font-weight:700;padding:1.5px 7px;border-radius:6px;
   margin-right:6px;vertical-align:1px;
-  background:rgba(111,231,255,.12);color:var(--wa-elite);border:1px solid rgba(111,231,255,.35);
+  background:rgba(111,231,255,.12);color:var(--wa-elite-text);border:1px solid rgba(111,231,255,.35);
 }
 .rc-unverified .rc-mode{display:none;}
 
@@ -1318,7 +1327,7 @@ option{background:var(--ink-2);color:#fff;}
 /* 我的赛程：报名截止 D-Day 警示（P1-4） */
 .pf-dday{
   margin-top:7px;padding:5px 10px;border-radius:9px;font-size:12px;
-  background:rgba(255,196,46,.10);color:var(--wa-gold);border:1px solid rgba(255,196,46,.35);
+  background:rgba(255,196,46,.10);color:var(--wa-gold-text);border:1px solid rgba(255,196,46,.35);
 }
 .pf-dday b{font-family:var(--f-num);font-size:13.5px;}
 .pf-dday.urgent{
@@ -1336,7 +1345,7 @@ option{background:var(--ink-2);color:#fff;}
   font-size:13px;color:var(--muted-2);
 }
 .dday-alert[hidden]{display:none;}
-.dday-alert .dday-txt b{color:var(--wa-gold);font-family:var(--f-num);font-size:15px;}
+.dday-alert .dday-txt b{color:var(--wa-gold-text);font-family:var(--f-num);font-size:15px;}
 .dday-alert .dday-txt b:first-child{font-family:inherit;font-size:13px;}
 .dday-alert .dday-more{font-size:11.5px;color:var(--muted);}
 .dday-alert .dday-go{

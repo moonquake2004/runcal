@@ -20,6 +20,34 @@ const ROOT = path.join(__dirname, '..');
 const LEGACY = path.join(__dirname, 'legacy');
 const OUT = path.join(ROOT, 'data');
 
+// ============================================================
+// P0 安全守卫：本脚本是一次性迁移工具（legacy JS → JSON）。
+// 迁移完成后 data/*.json 即为唯一数据源，后续赛季数据都在 JSON 上手工维护。
+// 若无条件执行，本脚本会把 data/ 静默回滚到 legacy 归档时的旧状态
+// （丢失报名窗口、官网链接、赛道难度、规模修正等全部人工核实成果）。
+// 因此默认拒绝执行；确认要回滚请显式传入 --force，并先 git commit 备份。
+// ============================================================
+const FORCE = process.argv.includes('--force');
+if (!FORCE) {
+  const newestOf = dir => Math.max(0, ...fs.readdirSync(dir)
+    .filter(f => !f.startsWith('.'))
+    .map(f => { try { return fs.statSync(path.join(dir, f)).mtimeMs; } catch (e) { return 0; } }));
+  const legacyNewest = newestOf(LEGACY);
+  const dataNewest = newestOf(OUT);
+  if (dataNewest > legacyNewest) {
+    console.error('');
+    console.error('✗ 拒绝执行：data/*.json 比 tools/legacy/* 更新，说明运行时数据已被手工维护。');
+    console.error('  继续执行会把 data/ 回滚到 legacy 归档状态，丢失全部人工核实成果。');
+    console.error('');
+    console.error('  如确需回滚：先 git commit 备份，再运行 node tools/build-json.js --force');
+    console.error('');
+    process.exit(1);
+  }
+  console.log('[build-json] 守卫通过（legacy 不比 data 旧），继续执行…');
+} else {
+  console.warn('[build-json] ⚠ --force 已启用：将用 legacy 覆盖 data/，请确认已做备份。');
+}
+
 // 每个归档 JS 文件 → 需要抽取的全局变量名
 const SOURCES = [
   { file: 'data-2026.js',  keys: ['RACES_2026'] },

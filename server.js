@@ -91,12 +91,25 @@ function serveFile(filePath, res) {
 }
 
 function serveStatic(req, res) {
-  let urlPath = decodeURIComponent(req.url.split('?')[0]);
+  // P0：畸形百分号编码（如 GET /%）会让 decodeURIComponent 抛 URIError。
+  // 该异常若逃逸到事件循环会直接终止整个 Node 进程，必须就地捕获。
+  let urlPath;
+  try {
+    urlPath = decodeURIComponent(req.url.split('?')[0]);
+  } catch (e) {
+    res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('Bad Request');
+    return;
+  }
   if (urlPath === '/' || urlPath === '') urlPath = '/index.html';
-  // 禁止直接下载服务端源码；visits.json 含访客 IP 痕迹，单独禁止
+  // 禁止下载服务端源码与本地工程文件；visits.json 含访客 IP 痕迹，单独禁止
   // （race 数据 data/*.json 需公开以便前端 fetch，不再整体禁用 /data）
-  if (urlPath === '/server.js' || urlPath === '/package.json' || urlPath === '/data/visits.json') {
-    res.writeHead(403); res.end('Forbidden'); return;
+  const segs = urlPath.split('/').filter(Boolean);
+  if (urlPath === '/server.js' || urlPath === '/package.json' || urlPath === '/data/visits.json' ||
+      segs.some(s => s.charAt(0) === '.') || segs[0] === 'tools') {
+    res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('Forbidden');
+    return;
   }
   const filePath = path.normalize(path.join(ROOT, urlPath));
   // 防目录穿越
@@ -129,7 +142,24 @@ const server = http.createServer((req, res) => {
     res.end(JSON.stringify({ total: state.total }));
     return;
   }
-  serveStatic(req, res);
+  // P0 纵深防御：任何单请求内的意外异常都不应终止服务进程
+  try {
+    serveStatic(req, res);
+  } catch (e) {
+    console.error('[req] serveStatic failed:', e && e.stack || e);
+    try { res.writeHead(500); res.end('Server Error'); } catch (_) {}
+  }
+});
+
+// P0：静态服务不应因单个请求异常而退出
+process.on('uncaughtException', e => {
+  console.error('[fatal] uncaughtException:', e && e.stack || e);
+});
+process.on('unhandledRejection', r => {
+  console.error('[fatal] unhandledRejection:', r);
+});
+server.on('clientError', (err, socket) => {
+  try { socket.end('HTTP/1.1 400 Bad Request\r\n\r\n'); } catch (_) {}
 });
 
 server.listen(PORT, '0.0.0.0', () => {
