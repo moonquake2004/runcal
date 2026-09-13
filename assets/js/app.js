@@ -59,13 +59,20 @@
   function fmtMD(d) { return (d.getMonth() + 1) + '月' + d.getDate() + '日'; }
   function fmtHM(d) { return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
 
+  // djb2 短哈希：.ics 的 UID 需要稳定且为 ASCII（不含中文与竖线）
+  function hashKey(str) {
+    let h = 5381;
+    for (let i = 0; i < str.length; i++) h = (((h << 5) + h) + str.charCodeAt(i)) >>> 0;
+    return h.toString(36);
+  }
+
   const BAD_ROWS = [];
   function hydrate(rows, year) {
     return rows.map((r, i) => {
       const o = {};
       FIELDS.forEach((f, k) => { o[f] = (r[k] !== undefined && r[k] !== null) ? r[k] : ''; });
       o.year = year;
-      o.id = year + '-' + i;
+      o._i = i;   // 仅供旧收藏主键（数组下标）一次性迁移使用，新逻辑一律用 o.id
       o.caa = String(o.caa || '');
       o.wa = String(o.wa || '');
       o.scale = Number(o.scale) || 0;
@@ -76,6 +83,10 @@
       if (!/^\d{4}-\d{2}-\d{2}$/.test(ds)) BAD_ROWS.push(year + ' · ' + String(r[0] || '(未命名)'));
       o.month = Number(ds.slice(5, 7)) || 0;
       o.day = Number(ds.slice(8, 10)) || 0;
+      // 稳定主键（P1-10）：赛事名 + 日期。绝不能用数组下标 —— 2027 赛季会持续补录，
+      // 一旦在文件中插入/删除一场，其后所有下标位移，用户收藏会静默串到别的赛事。
+      o.id = year + '|' + o.name + '|' + ds;
+      o.uid = 'runcal-' + hashKey(o.id) + '@runcal.local';
       o.confirmed = o.confirmed === 1 || o.confirmed === '1' || o.confirmed === true;
       // 已过比赛日一律视为已结束（空日期不参与判断）
       if (ds && ds < TODAY_STR && o.status !== 'done') o.status = 'done';
@@ -135,10 +146,26 @@
   const MAX_CMP = 4;
 
   /* 个人中心：本地存储（localStorage），不上传服务器 */
-  const LS_COL = 'mb_col_v1';
+  const LS_COL = 'mb_col_v2';        // v2：稳定主键（v1 是数组下标，见下方迁移）
+  const LS_COL_V1 = 'mb_col_v1';
   const LS_PB = 'mb_pb_v1';
   function loadJSON(k, d) { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } }
   function saveJSON(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+  /* 一次性迁移（P1-10）：把旧版「年份-数组下标」收藏主键反解为新的稳定主键。
+     按当前文件顺序反解（该顺序目前未变），迁移完成后删除旧键。 */
+  (function migrateColKeys() {
+    const old = loadJSON(LS_COL_V1, []);
+    if (!Array.isArray(old) || !old.length) return;
+    const byIdx = {};
+    ALL.forEach(r => { byIdx[r.year + '-' + r._i] = r.id; });
+    const migrated = old.map(k => byIdx[k]).filter(Boolean);
+    const merged = Array.from(new Set((loadJSON(LS_COL, []) || []).concat(migrated)));
+    saveJSON(LS_COL, merged);
+    try { localStorage.removeItem(LS_COL_V1); } catch (e) {}
+    console.info('[RunCal] 收藏主键迁移完成：' + migrated.length + '/' + old.length + ' 条');
+  })();
+
   let colSet = new Set(loadJSON(LS_COL, []));
   let pbList = loadJSON(LS_PB, []);
 
@@ -151,7 +178,7 @@
     if (html !== undefined) n.innerHTML = html;
     return n;
   };
-  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const icoPin = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>';
 
   function waBadge(r) {
@@ -665,7 +692,19 @@
       host.appendChild(box);
     });
   }
-  renderTimelineInto($('#timeline'), ALL);
+  // P1-4：赛历时间轴位于页面中部，首屏无需渲染。整表 473 行一次性构建会额外产生
+  // 约 1000 个节点与 2000 个监听器，改为滚动临近时再渲染（只渲染一次）。
+  (function lazyTimeline() {
+    const host = $('#timeline');
+    if (!host) return;
+    if (!('IntersectionObserver' in window)) { renderTimelineInto(host, ALL); return; }
+    const io = new IntersectionObserver((entries) => {
+      if (!entries.some(e => e.isIntersecting)) return;
+      io.disconnect();
+      renderTimelineInto(host, ALL);
+    }, { rootMargin: '600px 0px' });
+    io.observe(host);
+  })();
 
   /* ---------- 9. 排行榜 ---------- */
   /* P2-5 PB 可量化指数：基于已核实的赛道难度数据（difficulty.js）建模。
@@ -1226,7 +1265,7 @@
   function openCompare() {
     const races = [...compareSet].map(id => ALL.find(r => r.id === id)).filter(Boolean);
     if (races.length < 2) return;
-    const FIELDS = [
+    const CMP_ROWS = [
       ['比赛日期', r => r.date],
       ['地区', r => r.province + ' · ' + r.city],
       ['区域', r => r.region],
@@ -1240,16 +1279,21 @@
       ['中国籍男最好', r => cnOf(r, 'm')],
       ['中国籍女最好', r => cnOf(r, 'w')],
       ['赛道标签', r => r.tags.join(' / ') || '—'],
-      ['报名入口', r => r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">官网 / 报名 ↗</a>` : '—']
+      ['报名入口', r => r.url ? { __html: `<a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">官网 / 报名 ↗</a>` } : '—']
     ];
     let html = '<button class="modal-close" id="cmpClose">✕</button>';
     html += '<h3 class="cmp-title" id="cmpTitle">赛事对比 · ' + races.length + ' 场</h3>';
     html += '<div class="cmp-scroll"><table class="cmp-table"><thead><tr><th>对比项</th>';
     races.forEach(r => { html += `<th>${esc(r.name)}<span class="cmp-th-sub">${esc(r.province)}·${esc(r.city)}</span></th>`; });
     html += '</tr></thead><tbody>';
-    FIELDS.forEach(([k, fn]) => {
-      html += '<tr><th>' + k + '</th>';
-      races.forEach(r => { html += '<td>' + fn(r) + '</td>'; });
+    // P1-11：这是唯一绕过全局转义约定的渲染路径，统一走 esc()；
+    // 仅「报名入口」一列显式声明为可信 HTML（其 URL 本身已 esc）。
+    CMP_ROWS.forEach(([k, fn]) => {
+      html += '<tr><th>' + esc(k) + '</th>';
+      races.forEach(r => {
+        const v = fn(r);
+        html += '<td>' + ((v && v.__html) ? v.__html : esc(v)) + '</td>';
+      });
       html += '</tr>';
     });
     html += '</tbody></table></div>';
@@ -1277,23 +1321,31 @@
   const bar = $('#progressBar');
   const filterPanel = $('.filters');
   const racesSection = $('#races');
-  function onScroll() {
-    const y = window.scrollY;
-    const h = document.documentElement.scrollHeight - window.innerHeight;
-    bar.style.width = (h > 0 ? (y / h) * 100 : 0) + '%';
-
-    if (filterPanel && racesSection) {
-      const threshold = racesSection.offsetTop + 180;
-      // 滚过赛事库上方阈值即隐藏；只有滚回顶部（阈值之上）才重新显示，
-      // 列表内上滑不再弹出，避免遮挡卡片。
-      if (y > threshold) {
-        filterPanel.classList.add('scroll-hidden');
-      } else {
-        filterPanel.classList.remove('scroll-hidden');
-      }
-    }
+  // P1-5：旧实现每帧读 scrollHeight / offsetTop 再写 style，属强制同步布局（layout thrash）。
+  // 现改为：布局值缓存 + rAF 合并（读写都在下一帧统一进行），行为与原来一致。
+  let scrollTicking = false;
+  let maxScroll = 0;
+  let filterThreshold = Infinity;
+  function measureLayout() {
+    maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    filterThreshold = racesSection ? racesSection.offsetTop + 180 : Infinity;
   }
+  function onScroll() {
+    if (scrollTicking) return;
+    scrollTicking = true;
+    requestAnimationFrame(() => {
+      const y = window.scrollY;
+      bar.style.width = (maxScroll > 0 ? (y / maxScroll) * 100 : 0) + '%';
+      // 滚过赛事库上方阈值即隐藏；回到阈值之上才重新显示，避免遮挡卡片
+      if (filterPanel) filterPanel.classList.toggle('scroll-hidden', y > filterThreshold);
+      scrollTicking = false;
+    });
+  }
+  measureLayout();
   window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', measureLayout);
+  window.addEventListener('load', measureLayout);
+  setTimeout(measureLayout, 800);   // 首屏数据渲染会改变文档高度，渲染后重测
   onScroll();
 
   /* ---------- 12.5 个人中心（localStorage 本地存储） ---------- */
@@ -1481,7 +1533,7 @@
       const note = (r.reg ? '报名窗口：' + r.reg.open + ' 至 ' + r.reg.close + '（来源：' + r.reg.src + '）\n' : '')
         + (r.year === 2027 && !r.confirmed ? '⚠ 本场为参考 2026 同期档期推定，非官方定档。\n' : '')
         + '报名请以赛事组委会官方渠道为准。';
-      lines.push('BEGIN:VEVENT', 'UID:' + r.id + '@runcal.local', 'DTSTAMP:' + icsDT(now),
+      lines.push('BEGIN:VEVENT', 'UID:' + r.uid, 'DTSTAMP:' + icsDT(now),
         'DTSTART:' + icsDT(day), 'DTEND:' + icsDT(end),
         'SUMMARY:' + escapeICS('🏃 ' + r.name),
         'LOCATION:' + escapeICS(r.province + ' ' + r.city),
@@ -1494,7 +1546,7 @@
         const closeAt = parseDT(r.reg.close);
         if (closeAt && closeAt > now) {
           const closeEnd = new Date(closeAt.getTime() + 30 * 60000);
-          lines.push('BEGIN:VEVENT', 'UID:' + r.id + '-reg@runcal.local', 'DTSTAMP:' + icsDT(now),
+          lines.push('BEGIN:VEVENT', 'UID:' + r.uid.replace('@', '-reg@'), 'DTSTAMP:' + icsDT(now),
             'DTSTART:' + icsDT(closeAt), 'DTEND:' + icsDT(closeEnd),
             'SUMMARY:' + escapeICS('📝 报名截止 · ' + r.name),
             'DESCRIPTION:' + escapeICS('报名截止：' + r.reg.close + '\n来源：' + r.reg.src + '\n报名请以赛事组委会官方渠道为准。'),
@@ -1839,7 +1891,13 @@
           '报名窗口扩充至 20 场：新增太原（7/15 15:00–7/29 23:59，先缴费后抽签）、衡水湖（预报名 7/24 10:00–7/30 18:00）、郑州（8/10 10:00–8/19 17:00，费用 200 元/人）三场已核实窗口，均逐条带来源',
           '新增沈阳马拉松 2026 赛果（9/6 举办，22000 人）：男子冠军 Francis Kipkorir Langat（肯尼亚）、女子冠军 Minalle（埃塞俄比亚）；中国籍女子第一朱卿 2:30:48（女子组季军）',
           '报名状态一致性修正：8 场已完赛赛事由「待开启 / 已截止」改为「已结束」；6 场 9-13 当日开赛赛事由「待开启」改为「已截止」（报名窗口均已关闭）',
-          '赛道数据来源标注改为跟随数据快照日期，不再写死'
+          '赛道数据来源标注改为跟随数据快照日期，不再写死',
+          '收藏主键由「数组下标」改为「年份|赛事名|日期」稳定键（旧收藏自动一次性迁移）——此前 2027 赛季补录一场就会让其后所有收藏串到别的赛事',
+          '首屏性能：赛历时间轴改为滚动临近才渲染（少建约 1000 个节点 / 2000 个监听器）；滚动处理改为缓存布局值 + rAF 合并，消除每帧强制同步布局',
+          '数据加载容错：单个数据文件失败不再拖垮整站（改为局部降级提示），每个请求 8 秒超时并给出重试入口',
+          '新增静态赛历总表 races.html：无需 JavaScript 即可完整阅读全部赛事，并附结构化数据与 robots.txt / sitemap.xml（搜索引擎与无 JS 用户此前看不到任何赛事）',
+          '无障碍与体验：全站 reduced-motion 兜底（此前 13 处动画仅覆盖 3 处）、新增打印样式、明亮主题首屏不再闪烁、修正 .boot 遮罩未定义的背景变量',
+          '服务端：为带版本号的资源启用 immutable 长缓存，为数据 JSON 启用 ETag 协商缓存与 gzip（races-2026.json 由 62KB 压到 12.6KB）'
         ]
       },
       {

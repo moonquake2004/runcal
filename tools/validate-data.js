@@ -225,6 +225,28 @@ if (!vCss || !vLoader || !vVer) {
 }
 
 // ============================================================
+// 4.5 静态赛历总表（races.html）时效性
+// ============================================================
+const racesHtml = path.join(ROOT, 'races.html');
+if (!fs.existsSync(racesHtml)) {
+  warn('缺少 races.html 静态赛历总表（运行 npm run build:pages 生成）—— 无 JS 用户与搜索引擎看不到任何赛事');
+} else {
+  const htmlTime = fs.statSync(racesHtml).mtimeMs;
+  const newestData = Math.max(...fs.readdirSync(DATA)
+    .filter(f => f.endsWith('.json') && f !== 'visits.json')
+    .map(f => { try { return fs.statSync(path.join(DATA, f)).mtimeMs; } catch (e) { return 0; } }));
+  if (newestData > htmlTime) {
+    warn('races.html 比 data/*.json 旧 —— 数据已更新但静态总表未重新生成，请运行 npm run build:pages');
+  }
+  const htmlSrc = fs.readFileSync(racesHtml, 'utf8');
+  const articleCount = (htmlSrc.match(/<article class="race"/g) || []).length;
+  const raceTotal = Object.values(racesByYear).reduce((sum, rows) => sum + rows.length, 0);
+  if (articleCount !== raceTotal) {
+    err(`races.html 收录 ${articleCount} 场，与数据中的 ${raceTotal} 场不一致，请重新生成`);
+  }
+}
+
+// ============================================================
 // 5. 输出
 // ============================================================
 const total = Object.values(racesByYear).reduce((s, r) => s + r.length, 0);

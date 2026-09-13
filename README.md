@@ -54,6 +54,7 @@
 - 赛事对比托盘：随手勾选，凑够再比
 
 **其他**
+- 静态赛历总表 `races.html`：无需 JavaScript 的完整赛历（SEO / 无 JS 回退）
 - 移动端筛选抽屉（≤720px 自动变底部弹层）
 - 卡片键盘可达（Tab 聚焦 + Enter/Space 打开），带 `:focus-visible` 焦点环
 - 可"添加到主屏幕"（PWA manifest，含 192/512/maskable 图标）
@@ -88,6 +89,20 @@ node server.js
 > 必须通过 HTTP 服务访问（`node server.js` 或任意静态服务器，如 `npx serve`）。
 
 零依赖：只用 Node 内置模块（`http` / `fs` / `path`），**不需要 `npm install`**。
+
+### 生成静态赛历总表（可选但推荐）
+
+```bash
+npm run build:pages      # 生成 races.html + robots.txt + sitemap.xml
+```
+
+单页应用的全部赛事内容由 JS 运行时生成，静态 HTML 里没有一条赛事记录，因此搜索引擎
+（尤其百度）与禁用 JS 的用户都看不到内容。`races.html` 把数据渲染成一份**无需 JavaScript
+的完整赛历总表**（每场含日期、城市、等级、规模、报名窗口与来源、赛道难度、官网入口），
+并附带 JSON-LD 结构化数据。
+
+> 换域名后重新生成：`node tools/gen-static.js --base=https://新域名/`
+> `npm test` 会在 `races.html` 落后于 `data/*.json` 时告警。
 
 ### 改数据后务必跑校验
 
@@ -128,6 +143,7 @@ runcal/
     │                       # ⚠ 已加守卫：data/ 比 legacy/ 新时拒绝执行（防静默回滚），
     │                       #   确需回滚用 node tools/build-json.js --force
     ├── validate-data.js    # 数据校验（npm test）
+    ├── gen-static.js       # 生成静态赛历总表 races.html / robots.txt / sitemap.xml
     └── legacy/             # 归档的历史 JS 数据文件，运行时不再引用
 ```
 
@@ -205,10 +221,11 @@ PORT=3000 node server.js   # 默认 3000
 
 ## 已知限制
 
-- 未实现 Service Worker，**暂不支持离线访问**（"添加到主屏幕"后可像 App 一样打开，但仍需联网）
+- 未实现 Service Worker，**暂不支持离线访问**（但 `races.html` 在无 JS 环境下可完整阅读）（"添加到主屏幕"后可像 App 一样打开，但仍需联网）
 - 无官方逐公里海拔数据，不做赛道坡度剖面图
 - 数据为人工整理的非实时快照，报名信息请以赛事官方公告为准
-- 尚无每场赛事的独立可分享 URL 与 SEO 收录（详情走 `#race=` 片段哈希），搜索引擎基本看不到赛事内容
+- 每场赛事仍无独立 URL（详情走 `#race=` 片段哈希）；已有 `races.html` 静态总表可被爬取，
+  但若要每场赛事都被单独收录，需要按赛事生成静态页（尚未实现）
 
 ## 许可
 

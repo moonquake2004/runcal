@@ -6,6 +6,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const zlib = require('zlib');
 
 const PORT = process.env.PORT || 3000;
 const ROOT = __dirname;
@@ -81,12 +82,66 @@ const MIME = {
   '.ttf': 'font/ttf'
 };
 
-function serveFile(filePath, res) {
+// 可压缩的文本类型（JSON 是本站最大的传输量，gzip 后可压到约 1/4）
+const COMPRESSIBLE = /^(text\/|application\/(json|javascript|manifest\+json)|image\/svg)/;
+
+function sendFile(req, res, filePath, data) {
   const ext = path.extname(filePath).toLowerCase();
+  const type = MIME[ext] || 'application/octet-stream';
+  let stat;
+  try { stat = fs.statSync(filePath); } catch (e) { stat = null; }
+
+  const etag = stat ? '"' + stat.size.toString(16) + '-' + Math.floor(stat.mtimeMs).toString(36) + '"' : null;
+  const headers = {
+    'Content-Type': type,
+    'X-Content-Type-Options': 'nosniff',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'X-Frame-Options': 'SAMEORIGIN'
+  };
+  if (etag) headers.ETag = etag;
+  if (stat) headers['Last-Modified'] = stat.mtime.toUTCString();
+
+  // 带 ?v=<版本> 的资源内容不会变 → 长期强缓存；其余走协商缓存（有 ETag 即 304）
+  headers['Cache-Control'] = /[?&]v=/.test(req.url)
+    ? 'public, max-age=31536000, immutable'
+    : 'no-cache';
+
+  // 协商缓存：命中即 304，避免每次访问重下约 340KB
+  const inm = req.headers['if-none-match'];
+  const ims = req.headers['if-modified-since'];
+  if ((inm && etag && inm === etag) ||
+      (!inm && ims && stat && Date.parse(ims) >= Math.floor(stat.mtimeMs / 1000) * 1000)) {
+    res.writeHead(304, headers);
+    res.end();
+    return;
+  }
+
+  // gzip（仅文本类且体积值得压缩，且客户端声明支持）
+  if (COMPRESSIBLE.test(type) && data.length > 1024 &&
+      /\bgzip\b/.test(String(req.headers['accept-encoding'] || ''))) {
+    try {
+      const gz = zlib.gzipSync(data);
+      headers['Content-Encoding'] = 'gzip';
+      headers['Vary'] = 'Accept-Encoding';
+      res.writeHead(200, headers);
+      res.end(gz);
+      return;
+    } catch (e) { /* 压缩失败则退回明文 */ }
+  }
+
+  res.writeHead(200, headers);
+  res.end(data);
+}
+
+function serveFile(req, res, filePath) {
   fs.readFile(filePath, (err, data) => {
     if (err) { res.writeHead(500); res.end('Server Error'); return; }
-    res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
-    res.end(data);
+    try {
+      sendFile(req, res, filePath, data);
+    } catch (e) {
+      console.error('[serve] failed:', e && e.message);
+      try { res.writeHead(500); res.end('Server Error'); } catch (_) {}
+    }
   });
 }
 
@@ -119,12 +174,12 @@ function serveStatic(req, res) {
   if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
     // 非资源路径回退到 index.html（SPA 友好）
     if (!path.extname(filePath)) {
-      serveFile(path.join(ROOT, 'index.html'), res);
+      serveFile(req, res, path.join(ROOT, 'index.html'));
       return;
     }
     res.writeHead(404); res.end('Not Found'); return;
   }
-  serveFile(filePath, res);
+  serveFile(req, res, filePath);
 }
 
 // ---------- 路由 ----------

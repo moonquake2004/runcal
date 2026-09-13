@@ -27,9 +27,20 @@
 <meta name="twitter:title" content="跑历 RunCal · 中国马拉松赛季日历 2026—2027" data-page-node-id="D43yh9bfCfIAzeDJs3X3Eo">
 <meta name="twitter:description" content="34 省 473 场路跑赛事的中国马拉松赛季日历。" data-page-node-id="r7beULyt5Y2iqeB7Vz9k6F">
 <meta name="twitter:image" content="https://fb29a65789044909aaeee128c296f109.app.workbuddy.link/assets/og-cover.png" data-page-node-id="Bhq87yh8sBNpgGys8zAzid">
-<link rel="stylesheet" href="assets/css/style.css?v=20260913a" data-page-node-id="53Tewn6ObbK3T1xiS9TaiR">
+<script>/* P2-13 主题引导：必须在样式表之前执行，否则明亮主题用户每次都会先看到深色闪烁
+     （主题原本只在 app.js 里应用，而 app.js 要等 12 个 JSON 全部加载完才注入）。 */
+try{var t=localStorage.getItem('runcal-theme');if(t!=='light'&&t!=='dark')t='dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
+<link rel="stylesheet" href="assets/css/style.css?v=20260913b" data-page-node-id="53Tewn6ObbK3T1xiS9TaiR">
 </head>
 <body data-page-node-id="HFSBF5t72v6FJpHUpVpGwt">
+<noscript>
+  <div style="max-width:760px;margin:56px auto;padding:26px 28px;font:15px/1.85 -apple-system,'PingFang SC','Microsoft YaHei',sans-serif;color:#e8eef6;background:#12151D;border:1px solid rgba(255,255,255,.15);border-radius:14px">
+    <h1 style="font-size:21px;margin:0 0 12px;font-weight:800">跑历 RunCal · 中国马拉松赛季日历 2026—2027</h1>
+    <p style="margin:0 0 10px;color:#B9C1D0">本站的赛历检索依赖 JavaScript，而你的浏览器当前未启用或无法执行 JavaScript。</p>
+    <p style="margin:0 0 14px;color:#B9C1D0">可改为访问静态版赛历总表：<b>473 场赛事的日期、城市、田协 / 世界田联等级、报名窗口与官网入口</b>，无需 JavaScript 即可完整阅读。</p>
+    <p style="margin:0"><a href="races.html" style="color:#D8FF3E;font-weight:700">→ 打开静态赛历总表（races.html）</a></p>
+  </div>
+</noscript>
 
 <!-- ============ 导航 ============ -->
 <nav class="nav" data-page-node-id="Zb2knFUSREn2ZYdu9NeXfb">
@@ -575,6 +586,6 @@
 <div id="boot" class="boot">正在加载赛事数据…</div>
 
 <!-- 数据层（P3-10）：loader 并行拉取 data/*.json 挂载到 window，就绪后再注入 app.js -->
-<script src="assets/js/loader.js?v=20260913a"></script>
+<script src="assets/js/loader.js?v=20260913b"></script>
 </body>
 </html>

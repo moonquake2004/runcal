@@ -1,0 +1,6 @@
+# 跑历 RunCal
+User-agent: *
+Allow: /
+Disallow: /data/visits.json
+
+Sitemap: https://fb29a65789044909aaeee128c296f109.app.workbuddy.link/sitemap.xml
